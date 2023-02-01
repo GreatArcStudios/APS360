@@ -1,0 +1,27 @@
+---
+title: Final Project Thoughts
+---
+
+Overall lit review topics and potential models: 
+
+- https://github.com/albarqouni/Deep-Learning-for-Medical-Applications
+
+Alzheimer's and dementia prediction/classification is an area we could be interested in. 
+
+- https://paperswithcode.com/task/alzheimer-s-disease-detection
+- https://arxiv.org/pdf/1607.00556.pdf
+- https://arxiv.org/pdf/2011.14139v1.pdf
+
+Alzheimer's datasets: 
+
+- https://www.kaggle.com/datasets/tourist55/alzheimers-dataset-4-class-of-images
+- https://www.kaggle.com/datasets/sachinkumar413/alzheimer-mri-dataset
+- https://www.kaggle.com/datasets/jboysen/mri-and-alzheimers
+- https://www.kaggle.com/datasets/tourist55/alzheimers-dataset-4-class-of-images?resource=download
+
+Apply here: https://adni.loni.usc.edu/
+
+Potential research question? 
+
+Can bi-directional self attention and dilated convolutions out perform other current methods? Might also be worth looking into - https://aclanthology.org/2022.naacl-main.8.pdf
+
