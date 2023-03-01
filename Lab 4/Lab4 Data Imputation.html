@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>lab4-data-imputation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="Lab4 Data Imputation_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Lab4 Data Imputation_files/libs/quarto-html/quarto.js"></script>
+<script src="Lab4 Data Imputation_files/libs/quarto-html/popper.min.js"></script>
+<script src="Lab4 Data Imputation_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Lab4 Data Imputation_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Lab4 Data Imputation_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Lab4 Data Imputation_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Lab4 Data Imputation_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Lab4 Data Imputation_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Lab4 Data Imputation_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+<section id="lab-4-data-imputation-using-an-autoencoder" class="level1">
+<h1>Lab 4: Data Imputation using an Autoencoder</h1>
+<p>In this lab, you will build and train an autoencoder to impute (or “fill in”) missing data.</p>
+<p>We will be using the Adult Data Set provided by the UCI Machine Learning Repository [1], available at https://archive.ics.uci.edu/ml/datasets/adult. The data set contains census record files of adults, including their age, martial status, the type of work they do, and other features.</p>
+<p>Normally, people use this data set to build a supervised classification model to classify whether a person is a high income earner. We will not use the dataset for this original intended purpose.</p>
+<p>Instead, we will perform the task of imputing (or “filling in”) missing values in the dataset. For example, we may be missing one person’s martial status, and another person’s age, and a third person’s level of education. Our model will predict the missing features based on the information that we do have about each person.</p>
+<p>We will use a variation of a denoising autoencoder to solve this data imputation problem. Our autoencoder will be trained using inputs that have one categorical feature artificially removed, and the goal of the autoencoder is to correctly reconstruct all features, including the one removed from the input.</p>
+<p>In the process, you are expected to learn to:</p>
+<ol type="1">
+<li>Clean and process continuous and categorical data for machine learning.</li>
+<li>Implement an autoencoder that takes continuous and categorical (one-hot) inputs.</li>
+<li>Tune the hyperparameters of an autoencoder.</li>
+<li>Use baseline models to help interpret model performance.</li>
+</ol>
+<p>[1] Dua, D. and Karra Taniskidou, E. (2017). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School of Information and Computer Science.</p>
+<section id="what-to-submit" class="level3">
+<h3 class="anchored" data-anchor-id="what-to-submit">What to submit</h3>
+<p>Submit a PDF file containing all your code, outputs, and write-up. You can produce a PDF of your Google Colab file by going to File &gt; Print and then save as PDF. The Colab instructions have more information.</p>
+<p>Do not submit any other files produced by your code.</p>
+<p>Include a link to your colab file in your submission.</p>
+</section>
+<section id="colab-link" class="level2">
+<h2 class="anchored" data-anchor-id="colab-link">Colab Link</h2>
+<p>Include a link to your Colab file here. If you would like the TA to look at your Colab file in case your solutions are cut off, <strong>please make sure that your Colab file is publicly accessible at the time of submission</strong>.</p>
+<p>Colab Link: <a href="https://colab.research.google.com/github/GreatArcStudios/APS360/blob/master/Lab%204/Lab4%20Data%20Imputation.ipynb">https://colab.research.google.com/github/GreatArcStudios/APS360/blob/master/Lab%204/Lab4%20Data%20Imputation.ipynb</a></p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> csv</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.utils.data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="part-0" class="level2">
+<h2 class="anchored" data-anchor-id="part-0">Part 0</h2>
+<p>We will be using a package called <code>pandas</code> for this assignment.</p>
+<p>If you are using Colab, <code>pandas</code> should already be available. If you are using your own computer, installation instructions for <code>pandas</code> are available here: https://pandas.pydata.org/pandas-docs/stable/install.html</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="part-1.-data-cleaning-15-pt" class="level1">
+<h1>Part 1. Data Cleaning [15 pt]</h1>
+<p>The adult.data file is available at <code>https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data</code></p>
+<p>The function <code>pd.read_csv</code> loads the adult.data file into a pandas dataframe. You can read about the pandas documentation for <code>pd.read_csv</code> at https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="175">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>header <span class="op">=</span> [<span class="st">'age'</span>, <span class="st">'work'</span>, <span class="st">'fnlwgt'</span>, <span class="st">'edu'</span>, <span class="st">'yredu'</span>, <span class="st">'marriage'</span>, <span class="st">'occupation'</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a> <span class="st">'relationship'</span>, <span class="st">'race'</span>, <span class="st">'sex'</span>, <span class="st">'capgain'</span>, <span class="st">'caploss'</span>, <span class="st">'workhr'</span>, <span class="st">'country'</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df_full <span class="op">=</span> pd.read_csv(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    names<span class="op">=</span>header,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    index_col<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df_full</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>C:\Users\ericz\AppData\Local\Temp\ipykernel_31408\1439901705.py:3: ParserWarning: Length of header or names does not match length of data. This leads to a loss of data with index_col=False.
+  df_full = pd.read_csv(</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="c90e1be4-182d-4816-c20f-5d65fe414844" data-scrolled="true" data-execution_count="176">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df.shape <span class="co"># there are 32561 rows (records) in the data frame, and 14 columns (features)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="176">
+<pre><code>(32561, 14)</code></pre>
+</div>
+</div>
+<section id="part-a-continuous-features-3-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-continuous-features-3-pt">Part (a) Continuous Features [3 pt]</h3>
+<p>For each of the columns <code>["age", "yredu", "capgain", "caploss", "workhr"]</code>, report the minimum, maximum, and average value across the dataset.</p>
+<p>Then, normalize each of the features <code>["age", "yredu", "capgain", "caploss", "workhr"]</code> so that their values are always between 0 and 1. Make sure that you are actually modifying the dataframe <code>df</code>.</p>
+<p>Like numpy arrays and torch tensors, pandas data frames can be sliced. For example, we can display the first 3 rows of the data frame (3 records) below.</p>
+<div class="cell" data-outputid="cd1c2aee-df56-4df1-df16-3247d929a7b3" data-execution_count="177">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df[:<span class="dv">3</span>] <span class="co"># show the first 3 records</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="177">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>age</th>
+      <th>work</th>
+      <th>fnlwgt</th>
+      <th>edu</th>
+      <th>yredu</th>
+      <th>marriage</th>
+      <th>occupation</th>
+      <th>relationship</th>
+      <th>race</th>
+      <th>sex</th>
+      <th>capgain</th>
+      <th>caploss</th>
+      <th>workhr</th>
+      <th>country</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>39</td>
+      <td>State-gov</td>
+      <td>77516</td>
+      <td>Bachelors</td>
+      <td>13</td>
+      <td>Never-married</td>
+      <td>Adm-clerical</td>
+      <td>Not-in-family</td>
+      <td>White</td>
+      <td>Male</td>
+      <td>2174</td>
+      <td>0</td>
+      <td>40</td>
+      <td>United-States</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>50</td>
+      <td>Self-emp-not-inc</td>
+      <td>83311</td>
+      <td>Bachelors</td>
+      <td>13</td>
+      <td>Married-civ-spouse</td>
+      <td>Exec-managerial</td>
+      <td>Husband</td>
+      <td>White</td>
+      <td>Male</td>
+      <td>0</td>
+      <td>0</td>
+      <td>13</td>
+      <td>United-States</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>38</td>
+      <td>Private</td>
+      <td>215646</td>
+      <td>HS-grad</td>
+      <td>9</td>
+      <td>Divorced</td>
+      <td>Handlers-cleaners</td>
+      <td>Not-in-family</td>
+      <td>White</td>
+      <td>Male</td>
+      <td>0</td>
+      <td>0</td>
+      <td>40</td>
+      <td>United-States</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<p>Alternatively, we can slice based on column names, for example <code>df["race"]</code>, <code>df["hr"]</code>, or even index multiple columns like below.</p>
+<div class="cell" data-outputid="80c34c3c-4df7-414d-ffe4-9ff73b81b68a" data-execution_count="178">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>subdf <span class="op">=</span> df[[<span class="st">"age"</span>, <span class="st">"yredu"</span>, <span class="st">"capgain"</span>, <span class="st">"caploss"</span>, <span class="st">"workhr"</span>]]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>subdf[:<span class="dv">3</span>] <span class="co"># show the first 3 records</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="178">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>age</th>
+      <th>yredu</th>
+      <th>capgain</th>
+      <th>caploss</th>
+      <th>workhr</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>39</td>
+      <td>13</td>
+      <td>2174</td>
+      <td>0</td>
+      <td>40</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>50</td>
+      <td>13</td>
+      <td>0</td>
+      <td>0</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>38</td>
+      <td>9</td>
+      <td>0</td>
+      <td>0</td>
+      <td>40</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<p>Numpy works nicely with pandas, like below:</p>
+<div class="cell" data-outputid="29ee3639-30ae-4533-cb73-7cddf4be82a6" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>np.<span class="bu">sum</span>(subdf[<span class="st">"caploss"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>2842700</code></pre>
+</div>
+</div>
+<p>Just like numpy arrays, you can modify entire columns of data rather than one scalar element at a time. For example, the code</p>
+<p><code>df["age"] = df["age"] + 1</code></p>
+<p>would increment everyone’s age by 1.</p>
+<p>So we need to first report the min/max/avg of variables of interest (<code>["age", "yredu", "capgain", "caploss", "workhr"]</code>) then normalize them. As in we compute the following for normalization:</p>
+<p><span class="math display">\[
+\mathbf{x}_{\text{normalized}} = \frac{\left(\mathbf{x} - \bar{\mathbf{x}}\right)}{\widehat{\sigma}_{\mathbf{x}}}
+\]</span></p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="180">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> variable <span class="kw">in</span> [<span class="st">"age"</span>, <span class="st">"yredu"</span>, <span class="st">"capgain"</span>, <span class="st">"caploss"</span>, <span class="st">"workhr"</span>]: </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>variable<span class="sc">}</span><span class="ss"> statistics | min: </span><span class="sc">{</span><span class="bu">min</span>(df[variable])<span class="sc">}</span><span class="ss">, max: </span><span class="sc">{</span><span class="bu">max</span>(df[variable])<span class="sc">}</span><span class="ss">, average: </span><span class="sc">{</span> np<span class="sc">.</span>average(df[variable])<span class="sc">}</span><span class="ss">"</span>)  </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    df[variable] <span class="op">=</span> (df[variable] <span class="op">-</span> np.average(df[variable])) <span class="op">/</span> np.std(df[variable])</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>age statistics | min: -1.5822062886564523, max: 3.769612336743166, average: -2.7059150282317012e-17
+yredu statistics | min: -3.5296563996401558, max: 2.3008375546552444, average: 1.4718868439857116e-16
+capgain statistics | min: -0.14592048355885345, max: 13.394577908462539, average: 1.3093137233379199e-17
+caploss statistics | min: -0.21665952703259014, max: 10.593506563264937, average: 1.0169003251257845e-16
+workhr statistics | min: -3.1940303099566942, max: 4.742966730361867, average: -1.5493545726165386e-17</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="180">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>age</th>
+      <th>work</th>
+      <th>fnlwgt</th>
+      <th>edu</th>
+      <th>yredu</th>
+      <th>marriage</th>
+      <th>occupation</th>
+      <th>relationship</th>
+      <th>race</th>
+      <th>sex</th>
+      <th>capgain</th>
+      <th>caploss</th>
+      <th>workhr</th>
+      <th>country</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.030671</td>
+      <td>State-gov</td>
+      <td>77516</td>
+      <td>Bachelors</td>
+      <td>1.134739</td>
+      <td>Never-married</td>
+      <td>Adm-clerical</td>
+      <td>Not-in-family</td>
+      <td>White</td>
+      <td>Male</td>
+      <td>0.148453</td>
+      <td>-0.21666</td>
+      <td>-0.035429</td>
+      <td>United-States</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.837109</td>
+      <td>Self-emp-not-inc</td>
+      <td>83311</td>
+      <td>Bachelors</td>
+      <td>1.134739</td>
+      <td>Married-civ-spouse</td>
+      <td>Exec-managerial</td>
+      <td>Husband</td>
+      <td>White</td>
+      <td>Male</td>
+      <td>-0.145920</td>
+      <td>-0.21666</td>
+      <td>-2.222153</td>
+      <td>United-States</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-0.042642</td>
+      <td>Private</td>
+      <td>215646</td>
+      <td>HS-grad</td>
+      <td>-0.420060</td>
+      <td>Divorced</td>
+      <td>Handlers-cleaners</td>
+      <td>Not-in-family</td>
+      <td>White</td>
+      <td>Male</td>
+      <td>-0.145920</td>
+      <td>-0.21666</td>
+      <td>-0.035429</td>
+      <td>United-States</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.057047</td>
+      <td>Private</td>
+      <td>234721</td>
+      <td>11th</td>
+      <td>-1.197459</td>
+      <td>Married-civ-spouse</td>
+      <td>Handlers-cleaners</td>
+      <td>Husband</td>
+      <td>Black</td>
+      <td>Male</td>
+      <td>-0.145920</td>
+      <td>-0.21666</td>
+      <td>-0.035429</td>
+      <td>United-States</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-0.775768</td>
+      <td>Private</td>
+      <td>338409</td>
+      <td>Bachelors</td>
+      <td>1.134739</td>
+      <td>Married-civ-spouse</td>
+      <td>Prof-specialty</td>
+      <td>Wife</td>
+      <td>Black</td>
+      <td>Female</td>
+      <td>-0.145920</td>
+      <td>-0.21666</td>
+      <td>-0.035429</td>
+      <td>Cuba</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="part-b-categorical-features-1-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-categorical-features-1-pt">Part (b) Categorical Features [1 pt]</h3>
+<p>What percentage of people in our data set are male? Note that the data labels all have an unfortunate space in the beginning, e.g.&nbsp;” Male” instead of “Male”.</p>
+<p>What percentage of people in our data set are female?</p>
+<div class="cell" data-outputid="cd7201c3-007c-4fea-d955-4ce34ff808b6" data-execution_count="181">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># hint: you can do something like this in pandas</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Percentage of women in dataset:"</span>, <span class="bu">sum</span>(df[<span class="st">"sex"</span>] <span class="op">==</span> <span class="st">" Female"</span>)<span class="op">/</span><span class="bu">len</span>(df[<span class="st">"sex"</span>]) <span class="op">*</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Percentage of women in dataset: 33.07945087681583</code></pre>
+</div>
+</div>
+</section>
+<section id="part-c-2-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-2-pt">Part (c) [2 pt]</h3>
+<p>Before proceeding, we will modify our data frame in a couple more ways:</p>
+<ol type="1">
+<li>We will restrict ourselves to using a subset of the features (to simplify our autoencoder)</li>
+<li>We will remove any records (rows) already containing missing values, and store them in a second dataframe. We will only use records without missing values to train our autoencoder.</li>
+</ol>
+<p>Both of these steps are done for you, below.</p>
+<p>How many records contained missing features? What percentage of records were removed?</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="182">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>contcols <span class="op">=</span> [<span class="st">"age"</span>, <span class="st">"yredu"</span>, <span class="st">"capgain"</span>, <span class="st">"caploss"</span>, <span class="st">"workhr"</span>]</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>catcols <span class="op">=</span> [<span class="st">"work"</span>, <span class="st">"marriage"</span>, <span class="st">"occupation"</span>, <span class="st">"edu"</span>, <span class="st">"relationship"</span>, <span class="st">"sex"</span>]</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>features <span class="op">=</span> contcols <span class="op">+</span> catcols</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[features]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="183">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>missing <span class="op">=</span> pd.concat([df[c] <span class="op">==</span> <span class="st">" ?"</span> <span class="cf">for</span> c <span class="kw">in</span> catcols], axis<span class="op">=</span><span class="dv">1</span>).<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>df_with_missing <span class="op">=</span> df[missing]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>df_not_missing <span class="op">=</span> df[<span class="op">~</span>missing]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To find the number of samples with missing features, we can simply find the length of the <code>df_with_missing</code> dataframe. Then similarly to find the percentage of records, we can simply divide that number by the total number of samples in this dataset.</p>
+<div class="cell" data-execution_count="184">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>length_missing <span class="op">=</span> <span class="bu">len</span>(df_with_missing)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>length_total <span class="op">=</span> <span class="bu">len</span>(df)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>precentage_missing <span class="op">=</span> length_missing<span class="op">/</span>length_total</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Precentage missing: </span><span class="sc">{</span><span class="bu">round</span>(precentage_missing, <span class="dv">4</span>)<span class="op">*</span><span class="dv">100</span><span class="sc">}</span><span class="ss">% | Records with missing features: </span><span class="sc">{</span>length_missing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Precentage missing: 5.66% | Records with missing features: 1843</code></pre>
+</div>
+</div>
+</section>
+<section id="part-d-one-hot-encoding-1-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-d-one-hot-encoding-1-pt">Part (d) One-Hot Encoding [1 pt]</h3>
+<p>What are all the possible values of the feature “work” in <code>df_not_missing</code>? You may find the Python function <code>set</code> useful.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="185">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span>(df_not_missing[<span class="st">'work'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="185">
+<pre><code>{' Federal-gov',
+ ' Local-gov',
+ ' Private',
+ ' Self-emp-inc',
+ ' Self-emp-not-inc',
+ ' State-gov',
+ ' Without-pay'}</code></pre>
+</div>
+</div>
+<p>We will be using a one-hot encoding to represent each of the categorical variables. Our autoencoder will be trained using these one-hot encodings.</p>
+<p>We will use the pandas function <code>get_dummies</code> to produce one-hot encodings for all of the categorical variables in <code>df_not_missing</code>.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="186">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.get_dummies(df_not_missing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-scrolled="true" data-execution_count="187">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>data[:<span class="dv">3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="187">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>age</th>
+      <th>yredu</th>
+      <th>capgain</th>
+      <th>caploss</th>
+      <th>workhr</th>
+      <th>work_ Federal-gov</th>
+      <th>work_ Local-gov</th>
+      <th>work_ Private</th>
+      <th>work_ Self-emp-inc</th>
+      <th>work_ Self-emp-not-inc</th>
+      <th>...</th>
+      <th>edu_ Prof-school</th>
+      <th>edu_ Some-college</th>
+      <th>relationship_ Husband</th>
+      <th>relationship_ Not-in-family</th>
+      <th>relationship_ Other-relative</th>
+      <th>relationship_ Own-child</th>
+      <th>relationship_ Unmarried</th>
+      <th>relationship_ Wife</th>
+      <th>sex_ Female</th>
+      <th>sex_ Male</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.030671</td>
+      <td>1.134739</td>
+      <td>0.148453</td>
+      <td>-0.21666</td>
+      <td>-0.035429</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.837109</td>
+      <td>1.134739</td>
+      <td>-0.145920</td>
+      <td>-0.21666</td>
+      <td>-2.222153</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-0.042642</td>
+      <td>-0.420060</td>
+      <td>-0.145920</td>
+      <td>-0.21666</td>
+      <td>-0.035429</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>3 rows × 57 columns</p>
+</div>
+</div>
+</div>
+</section>
+<section id="part-e-one-hot-encoding-2-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-e-one-hot-encoding-2-pt">Part (e) One-Hot Encoding [2 pt]</h3>
+<p>The dataframe <code>data</code> contains the cleaned and normalized data that we will use to train our denoising autoencoder.</p>
+<p>How many <strong>columns</strong> (features) are in the dataframe <code>data</code>?</p>
+<p>Briefly explain where that number come from.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="188">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(data.columns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="188">
+<pre><code>57</code></pre>
+</div>
+</div>
+<p>This number is the length property of the <code>data.columns</code> object, which is an iterable, so it has a length property, meaning we can call <code>len</code> on it. Note that <code>data.columns</code> gets all of the column names of a dataframe.</p>
+</section>
+<section id="part-f-one-hot-conversion-3-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-f-one-hot-conversion-3-pt">Part (f) One-Hot Conversion [3 pt]</h3>
+<p>We will convert the pandas data frame <code>data</code> into numpy, so that it can be further converted into a PyTorch tensor. However, in doing so, we lose the column label information that a panda data frame automatically stores.</p>
+<p>Complete the function <code>get_categorical_value</code> that will return the named value of a feature given a one-hot embedding. You may find the global variables <code>cat_index</code> and <code>cat_values</code> useful. (Display them and figure out what they are first.)</p>
+<p>We will need this function in the next part of the lab to interpret our autoencoder outputs. So, the input to our function <code>get_categorical_values</code> might not actually be “one-hot” – the input may instead contain real-valued predictions from our neural network.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="191">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>datanp <span class="op">=</span> data.values.astype(np.float32)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="221">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>cat_index <span class="op">=</span> {}  <span class="co"># Mapping of feature -&gt; start index of feature in a record</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>cat_values <span class="op">=</span> {} <span class="co"># Mapping of feature -&gt; list of categorical values the feature can take</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># build up the cat_index and cat_values dictionary</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, header <span class="kw">in</span> <span class="bu">enumerate</span>(data.keys()):</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">"_"</span> <span class="kw">in</span> header: <span class="co"># categorical header</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        feature, value <span class="op">=</span> header.split()</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>        feature <span class="op">=</span> feature[:<span class="op">-</span><span class="dv">1</span>] <span class="co"># remove the last char; it is always an underscore</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> feature <span class="kw">not</span> <span class="kw">in</span> cat_index:</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>            cat_index[feature] <span class="op">=</span> i</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>            cat_values[feature] <span class="op">=</span> [value]</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>            cat_values[feature].append(value)</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_onehot(record, feature):</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="co">    Return the portion of `record` that is the one-hot encoding</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="co">    of `feature`. For example, since the feature "work" is stored</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="co">    in the indices [5:12] in each record, calling `get_range(record, "work")`</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="co">    is equivalent to accessing `record[5:12]`.</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="co">        - record: a numpy array representing one record, formatted</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a><span class="co">                  the same way as a row in `data.np`</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="co">        - feature: a string, should be an element of `catcols`</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>    start_index <span class="op">=</span> cat_index[feature]</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>    stop_index <span class="op">=</span> cat_index[feature] <span class="op">+</span> <span class="bu">len</span>(cat_values[feature])</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> record[start_index:stop_index]</span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_categorical_value(onehot, feature):</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a><span class="co">    Return the categorical value name of a feature given</span></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a><span class="co">    a one-hot vector representing the feature.</span></span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a><span class="co">        - onehot: a numpy array one-hot representation of the feature</span></span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a><span class="co">        - feature: a string, should be an element of `catcols`</span></span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a><span class="co">        </span></span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a><span class="co">    Examples:</span></span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a><span class="co">    &gt;&gt;&gt; get_categorical_value(np.array([0., 0., 0., 0., 0., 1., 0.]), "work")</span></span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a><span class="co">    'State-gov'</span></span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a><span class="co">    &gt;&gt;&gt; get_categorical_value(np.array([0.1, 0., 1.1, 0.2, 0., 1., 0.]), "work")</span></span>
+<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a><span class="co">    'Private'</span></span>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># &lt;----- </span><span class="al">TODO</span><span class="co">: WRITE YOUR CODE HERE -----&gt;</span></span>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># You may find the variables `cat_index` and `cat_values` </span></span>
+<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a>    <span class="co"># (created above) useful.</span></span>
+<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a>    <span class="co"># this is really asking us to retrieve the respective value from </span></span>
+<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># cat_values based on the argmax of the respective subarray of the onehot buffer</span></span>
+<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the first example in the doc string since it is the only 1 in position 6</span></span>
+<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a>    <span class="co"># which corresponds to 'State-gov' in cat_values </span></span>
+<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a>    index <span class="op">=</span> np.argmax(onehot)</span>
+<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a>    feature_values <span class="op">=</span> cat_values[feature]</span>
+<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> feature_values[index]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="193">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># clearly works as expected </span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_categorical_value(np.array([<span class="fl">0.</span>, <span class="fl">0.</span>, <span class="fl">0.</span>, <span class="fl">0.</span>, <span class="fl">0.</span>, <span class="fl">1.</span>, <span class="fl">0.</span>]), <span class="st">"work"</span>), get_categorical_value(np.array([<span class="fl">0.1</span>, <span class="fl">0.</span>, <span class="fl">1.1</span>, <span class="fl">0.2</span>, <span class="fl">0.</span>, <span class="fl">1.</span>, <span class="fl">0.</span>]), <span class="st">"work"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>State-gov Private</code></pre>
+</div>
+</div>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="194">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># more useful code, used during training, that depends on the function</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># you write above</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_feature(record, feature):</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Return the categorical feature value of a record</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    onehot <span class="op">=</span> get_onehot(record, feature)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> get_categorical_value(onehot, feature)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_features(record):</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="co">    Return a dictionary of all categorical feature values of a record</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> { f: get_feature(record, f) <span class="cf">for</span> f <span class="kw">in</span> catcols }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="part-g-traintest-split-3-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-g-traintest-split-3-pt">Part (g) Train/Test Split [3 pt]</h3>
+<p>Randomly split the data into approximately 70% training, 15% validation and 15% test.</p>
+<p>Report the number of items in your training, validation, and test set.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="195">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set the numpy seed for reproducibility</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co"># https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.seed.html</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">50</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co"># todo</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co"># seems like we want to perform the splitting in numpy if we are seeting the seed using numpy </span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co"># so first shuffle the data</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co"># then slice 70%, 15%, and 15% </span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>data_shuffled <span class="op">=</span> datanp[:]</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>np.random.shuffle(data_shuffled)</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>train_end, val_end <span class="op">=</span> <span class="bu">int</span>(<span class="bu">len</span>(data_shuffled)<span class="op">*</span><span class="fl">0.7</span>), <span class="bu">int</span>(<span class="bu">len</span>(data_shuffled)<span class="op">*</span><span class="fl">0.85</span>) <span class="co"># make sure to floor them</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>data_train, data_val, data_test <span class="op">=</span> data_shuffled[:train_end], data_shuffled[train_end: val_end], data_shuffled[val_end: ]</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(data_train), <span class="bu">len</span>(data_val), <span class="bu">len</span>(data_test))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>21502 4608 4608</code></pre>
+</div>
+</div>
+<p>As we can see from the block above, the train set has 21502 samples, 4608 samples in the validation set, and finally 4608 samples in the test set.</p>
+<div class="cell" data-execution_count="196">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create the Pytorch datasets and dataloaders for training </span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> TensorDataset, DataLoader</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchinfo <span class="im">import</span> summary</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>train_set <span class="op">=</span> TensorDataset(torch.from_numpy(data_train))</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>val_set <span class="op">=</span> TensorDataset(torch.from_numpy(data_val))</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>test_set <span class="op">=</span> TensorDataset(torch.from_numpy(data_test))</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>train_loader, val_loader, test_loader <span class="op">=</span> DataLoader(train_set, <span class="dv">128</span>), DataLoader(val_set, <span class="bu">len</span>(data_val)), DataLoader(test_set, <span class="bu">len</span>(data_val))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="part-2.-model-setup-5-pt" class="level2">
+<h2 class="anchored" data-anchor-id="part-2.-model-setup-5-pt">Part 2. Model Setup [5 pt]</h2>
+<section id="part-a-4-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-4-pt">Part (a) [4 pt]</h3>
+<p>Design a fully-connected autoencoder by modifying the <code>encoder</code> and <code>decoder</code> below.</p>
+<p>The input to this autoencoder will be the features of the <code>data</code>, with one categorical feature recorded as “missing”. The output of the autoencoder should be the reconstruction of the same features, but with the missing value filled in.</p>
+<p><strong>Note</strong>: Do not reduce the dimensionality of the input too much! The output of your embedding is expected to contain information about ~11 features.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="58">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AutoEncoder(nn.Module):</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(AutoEncoder, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.encoder <span class="op">=</span> nn.Sequential(</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">57</span>, <span class="dv">57</span>), <span class="co"># </span><span class="al">TODO</span><span class="co"> -- FILL OUT THE CODE HERE!</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">57</span>, <span class="dv">47</span>),</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">47</span>, <span class="dv">37</span>),</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">37</span>, <span class="dv">30</span>),</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">30</span>, <span class="dv">20</span>),</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">20</span>, <span class="dv">12</span>),</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.decoder <span class="op">=</span> nn.Sequential(</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">12</span>, <span class="dv">20</span>),</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">20</span>, <span class="dv">28</span>),</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">28</span>, <span class="dv">40</span>),</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">40</span>, <span class="dv">50</span>),</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">50</span>, <span class="dv">57</span>),</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">57</span>, <span class="dv">57</span>), <span class="co"># </span><span class="al">TODO</span><span class="co"> -- FILL OUT THE CODE HERE!</span></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>            nn.Sigmoid() <span class="co"># get to the range (0, 1)</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.encoder(x)</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.decoder(x)</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="part-b-1-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-1-pt">Part (b) [1 pt]</h3>
+<p>Explain why there is a sigmoid activation in the last step of the decoder.</p>
+<p>(<strong>Note</strong>: the values inside the data frame <code>data</code> and the training code in Part 3 might be helpful.)</p>
+<p>The sigmoid function allow us to output values between 0 and 1 (on the interval <span class="math inline">\([0, ~ 1]\)</span>), and since we are creating an imputation model for categorical features that are learning the one-hot encodings that are either 0 and 1, we need the use the sigmoid function to “clamp” our predictions to be between 0 and 1. Note that while we cannot have exactly 0 or 1 due to the continuous nature of this model or some kind of discretization, we can have the model output on the range of <span class="math inline">\([0, ~ 1]\)</span>.</p>
+</section>
+</section>
+<section id="part-3.-training-18" class="level2">
+<h2 class="anchored" data-anchor-id="part-3.-training-18">Part 3. Training [18]</h2>
+<section id="part-a-6-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-6-pt">Part (a) [6 pt]</h3>
+<p>We will train our autoencoder in the following way:</p>
+<ul>
+<li>In each iteration, we will hide one of the categorical features using the <code>zero_out_random_features</code> function</li>
+<li>We will pass the data with one missing feature through the autoencoder, and obtain a reconstruction</li>
+<li>We will check how close the reconstruction is compared to the original data – including the value of the missing feature</li>
+</ul>
+<p>Complete the code to train the autoencoder, and plot the training and validation loss every few iterations. You may also want to plot training and validation “accuracy” every few iterations, as we will define in part (b). You may also want to checkpoint your model every few iterations or epochs.</p>
+<p>Use <code>nn.MSELoss()</code> as your loss function. (Side note: you might recognize that this loss function is not ideal for this problem, but we will use it anyway.)</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="60">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> zero_out_feature(records, feature):</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Set the feature missing in records, by setting the appropriate</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co">    columns of records to 0</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    start_index <span class="op">=</span> cat_index[feature]</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    stop_index <span class="op">=</span> cat_index[feature] <span class="op">+</span> <span class="bu">len</span>(cat_values[feature])</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    records[:, start_index:stop_index] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> records</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> zero_out_random_feature(records):</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Set one random feature missing in records, by setting the </span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="co">    appropriate columns of records to 0</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> zero_out_feature(records, random.choice(catcols))</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(model, train_loader, valid_loader, num_epochs<span class="op">=</span><span class="dv">5</span>, learning_rate<span class="op">=</span><span class="fl">1e-4</span>, val_epochs<span class="op">=</span><span class="dv">10</span>, weight_decay<span class="op">=</span><span class="fl">1e-4</span>, acc_func<span class="op">=</span><span class="va">None</span>, use_cuda<span class="op">=</span><span class="va">True</span>, model_path_prefix<span class="op">=</span><span class="st">"./models/"</span>, plot_acc<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Training loop. You should update this."""</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>    torch.manual_seed(<span class="dv">42</span>)</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># determine if CUDA is available and set Tensor core flags</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> use_cuda <span class="kw">and</span> torch.cuda.is_available():</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>        dev <span class="op">=</span> <span class="st">"cuda:0"</span></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>        torch.backends.cuda.matmul.allow_tf32 <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>        torch.backends.cudnn.allow_tf32 <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"CUDA unavailable, training on CPU"</span>)</span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>        dev <span class="op">=</span> <span class="st">"CPU"</span></span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> torch.device(dev)</span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> model.to(device)</span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>    val_set <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>    best_val_loss <span class="op">=</span> <span class="bu">float</span>(<span class="st">'inf'</span>)</span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, batch <span class="kw">in</span> <span class="bu">enumerate</span>(valid_loader):</span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>        val_set <span class="op">=</span> batch[<span class="dv">0</span>].to(device)</span>
+<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>        summary(model, input_data<span class="op">=</span>val_set, verbose<span class="op">=</span><span class="dv">2</span>, device<span class="op">=</span>device)</span>
+<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a>    loss_dict <span class="op">=</span> {<span class="st">"config"</span>: <span class="ss">f"Epochs: </span><span class="sc">{</span>num_epochs<span class="sc">}</span><span class="ss">, Lr: </span><span class="sc">{</span>learning_rate<span class="sc">}</span><span class="ss">"</span>,</span>
+<span id="cb34-41"><a href="#cb34-41" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"epochs"</span>: num_epochs,</span>
+<span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"train_loss"</span>: [], <span class="st">"val_loss"</span>: [],</span>
+<span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"train_acc"</span>: [], <span class="st">"val_acc"</span>: []}</span>
+<span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a>    criterion <span class="op">=</span> nn.MSELoss()</span>
+<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>    optimizer <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span>learning_rate, weight_decay<span class="op">=</span>weight_decay)</span>
+<span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-48"><a href="#cb34-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(num_epochs):</span>
+<span id="cb34-49"><a href="#cb34-49" aria-hidden="true" tabindex="-1"></a>        train_loss <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb34-50"><a href="#cb34-50" aria-hidden="true" tabindex="-1"></a>        batches <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb34-51"><a href="#cb34-51" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb34-52"><a href="#cb34-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _, data <span class="kw">in</span> <span class="bu">enumerate</span>(train_loader):</span>
+<span id="cb34-53"><a href="#cb34-53" aria-hidden="true" tabindex="-1"></a>            data <span class="op">=</span> data[<span class="dv">0</span>].to(device)</span>
+<span id="cb34-54"><a href="#cb34-54" aria-hidden="true" tabindex="-1"></a>            <span class="co"># zero out one categorical feature</span></span>
+<span id="cb34-55"><a href="#cb34-55" aria-hidden="true" tabindex="-1"></a>            datam <span class="op">=</span> zero_out_random_feature(data.clone())</span>
+<span id="cb34-56"><a href="#cb34-56" aria-hidden="true" tabindex="-1"></a>            recon <span class="op">=</span> model(datam)</span>
+<span id="cb34-57"><a href="#cb34-57" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> criterion(recon, data)</span>
+<span id="cb34-58"><a href="#cb34-58" aria-hidden="true" tabindex="-1"></a>            train_loss <span class="op">+=</span> loss</span>
+<span id="cb34-59"><a href="#cb34-59" aria-hidden="true" tabindex="-1"></a>            batches <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb34-60"><a href="#cb34-60" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb34-61"><a href="#cb34-61" aria-hidden="true" tabindex="-1"></a>            optimizer.step()</span>
+<span id="cb34-62"><a href="#cb34-62" aria-hidden="true" tabindex="-1"></a>            optimizer.zero_grad()</span>
+<span id="cb34-63"><a href="#cb34-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-64"><a href="#cb34-64" aria-hidden="true" tabindex="-1"></a>        train_loss <span class="op">/=</span> batches</span>
+<span id="cb34-65"><a href="#cb34-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-66"><a href="#cb34-66" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> epoch <span class="op">%</span> val_epochs <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb34-67"><a href="#cb34-67" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb34-68"><a href="#cb34-68" aria-hidden="true" tabindex="-1"></a>                val_acc <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb34-69"><a href="#cb34-69" aria-hidden="true" tabindex="-1"></a>                train_acc <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb34-70"><a href="#cb34-70" aria-hidden="true" tabindex="-1"></a>                preds <span class="op">=</span> model(val_set)</span>
+<span id="cb34-71"><a href="#cb34-71" aria-hidden="true" tabindex="-1"></a>                val_loss <span class="op">=</span> criterion(preds, val_set)</span>
+<span id="cb34-72"><a href="#cb34-72" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(</span>
+<span id="cb34-73"><a href="#cb34-73" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"epoch: </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">, train_loss: </span><span class="sc">{</span>train_loss<span class="sc">}</span><span class="ss">, val_loss: </span><span class="sc">{</span>val_loss<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb34-74"><a href="#cb34-74" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> plot_acc:</span>
+<span id="cb34-75"><a href="#cb34-75" aria-hidden="true" tabindex="-1"></a>                    val_acc <span class="op">=</span> acc_func(model, valid_loader)</span>
+<span id="cb34-76"><a href="#cb34-76" aria-hidden="true" tabindex="-1"></a>                    train_acc <span class="op">=</span> acc_func(model, train_loader)</span>
+<span id="cb34-77"><a href="#cb34-77" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">print</span>(</span>
+<span id="cb34-78"><a href="#cb34-78" aria-hidden="true" tabindex="-1"></a>                        <span class="ss">f"epoch: </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">, train_acc: </span><span class="sc">{</span>train_acc<span class="sc">}</span><span class="ss">, val_acc: </span><span class="sc">{</span>val_acc<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb34-79"><a href="#cb34-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-80"><a href="#cb34-80" aria-hidden="true" tabindex="-1"></a>                loss_dict[<span class="st">"train_loss"</span>].append(train_loss)</span>
+<span id="cb34-81"><a href="#cb34-81" aria-hidden="true" tabindex="-1"></a>                loss_dict[<span class="st">"val_loss"</span>].append(val_loss)</span>
+<span id="cb34-82"><a href="#cb34-82" aria-hidden="true" tabindex="-1"></a>                loss_dict[<span class="st">"train_acc"</span>].append(train_acc)</span>
+<span id="cb34-83"><a href="#cb34-83" aria-hidden="true" tabindex="-1"></a>                loss_dict[<span class="st">"val_acc"</span>].append(val_acc)</span>
+<span id="cb34-84"><a href="#cb34-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-85"><a href="#cb34-85" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> val_loss <span class="op">&lt;</span> best_val_loss:</span>
+<span id="cb34-86"><a href="#cb34-86" aria-hidden="true" tabindex="-1"></a>                    best_val_loss <span class="op">=</span> val_loss</span>
+<span id="cb34-87"><a href="#cb34-87" aria-hidden="true" tabindex="-1"></a>                    torch.save(model.state_dict(), model_path_prefix <span class="op">+</span></span>
+<span id="cb34-88"><a href="#cb34-88" aria-hidden="true" tabindex="-1"></a>                               <span class="ss">f"valloss-</span><span class="sc">{</span>torch<span class="sc">.</span><span class="bu">round</span>(best_val_loss, decimals<span class="op">=</span><span class="dv">4</span>)<span class="sc">}</span><span class="ss">-lr_</span><span class="sc">{</span>learning_rate<span class="sc">}</span><span class="ss">-epoch_num_</span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">.mdlckpt"</span>)</span>
+<span id="cb34-89"><a href="#cb34-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-90"><a href="#cb34-90" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> model, loss_dict</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="61">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>FCAutoEncoder <span class="op">=</span> AutoEncoder()</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>model, loss_dict <span class="op">=</span> train(FCAutoEncoder, train_loader, val_loader, num_epochs<span class="op">=</span><span class="dv">100</span>, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+AutoEncoder                              [4608, 57]                --
+├─Sequential: 1-1                        [4608, 12]                --
+│    └─0.weight                                                    ├─3,249
+│    └─0.bias                                                      ├─57
+│    └─1.weight                                                    ├─2,679
+│    └─1.bias                                                      ├─47
+│    └─2.weight                                                    ├─1,739
+│    └─2.bias                                                      ├─37
+│    └─3.weight                                                    ├─1,110
+│    └─3.bias                                                      ├─30
+│    └─4.weight                                                    ├─600
+│    └─4.bias                                                      ├─20
+│    └─5.weight                                                    ├─240
+│    └─5.bias                                                      └─12
+│    └─Linear: 2-1                       [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-2                       [4608, 47]                2,726
+│    │    └─weight                                                 ├─2,679
+│    │    └─bias                                                   └─47
+│    └─Linear: 2-3                       [4608, 37]                1,776
+│    │    └─weight                                                 ├─1,739
+│    │    └─bias                                                   └─37
+│    └─Linear: 2-4                       [4608, 30]                1,140
+│    │    └─weight                                                 ├─1,110
+│    │    └─bias                                                   └─30
+│    └─Linear: 2-5                       [4608, 20]                620
+│    │    └─weight                                                 ├─600
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-6                       [4608, 12]                252
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─12
+├─Sequential: 1-2                        [4608, 57]                --
+│    └─0.weight                                                    ├─240
+│    └─0.bias                                                      ├─20
+│    └─1.weight                                                    ├─560
+│    └─1.bias                                                      ├─28
+│    └─2.weight                                                    ├─1,120
+│    └─2.bias                                                      ├─40
+│    └─3.weight                                                    ├─2,000
+│    └─3.bias                                                      ├─50
+│    └─4.weight                                                    ├─2,850
+│    └─4.bias                                                      ├─57
+│    └─5.weight                                                    ├─3,249
+│    └─5.bias                                                      └─57
+│    └─Linear: 2-7                       [4608, 20]                260
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-8                       [4608, 28]                588
+│    │    └─weight                                                 ├─560
+│    │    └─bias                                                   └─28
+│    └─Linear: 2-9                       [4608, 40]                1,160
+│    │    └─weight                                                 ├─1,120
+│    │    └─bias                                                   └─40
+│    └─Linear: 2-10                      [4608, 50]                2,050
+│    │    └─weight                                                 ├─2,000
+│    │    └─bias                                                   └─50
+│    └─Linear: 2-11                      [4608, 57]                2,907
+│    │    └─weight                                                 ├─2,850
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-12                      [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Sigmoid: 2-13                     [4608, 57]                --
+==========================================================================================
+Total params: 20,091
+Trainable params: 20,091
+Non-trainable params: 0
+Total mult-adds (M): 92.58
+==========================================================================================
+Input size (MB): 1.05
+Forward/backward pass size (MB): 16.77
+Params size (MB): 0.08
+Estimated Total Size (MB): 17.90
+==========================================================================================
+epoch: 0, train_loss: 0.27756449580192566, val_loss: 0.16905611753463745
+epoch: 0, train_acc: 0.4391917030973863, val_acc: 0.4380787037037037
+epoch: 10, train_loss: 0.1364634931087494, val_loss: 0.13517829775810242
+epoch: 10, train_acc: 0.5066815490031935, val_acc: 0.5041956018518519
+epoch: 20, train_loss: 0.1276019960641861, val_loss: 0.12661626935005188
+epoch: 20, train_acc: 0.5645831395529098, val_acc: 0.5638020833333334
+epoch: 30, train_loss: 0.1206154152750969, val_loss: 0.11883264780044556
+epoch: 30, train_acc: 0.5638777788112733, val_acc: 0.5644169560185185
+epoch: 40, train_loss: 0.11693570762872696, val_loss: 0.11505910754203796
+epoch: 40, train_acc: 0.5753263262332187, val_acc: 0.5767144097222222
+epoch: 50, train_loss: 0.11512292176485062, val_loss: 0.113580621778965
+epoch: 50, train_acc: 0.5755511115245093, val_acc: 0.5767867476851852
+epoch: 60, train_loss: 0.11442399024963379, val_loss: 0.11348515748977661
+epoch: 60, train_acc: 0.5737063218925371, val_acc: 0.5746166087962963
+epoch: 70, train_loss: 0.11439178138971329, val_loss: 0.11313560605049133
+epoch: 70, train_acc: 0.5732645025268968, val_acc: 0.5737847222222222
+epoch: 80, train_loss: 0.11422046273946762, val_loss: 0.11427033692598343
+epoch: 80, train_acc: 0.57628747713391, val_acc: 0.5770399305555556
+epoch: 90, train_loss: 0.1144983321428299, val_loss: 0.11424032598733902
+epoch: 90, train_acc: 0.579271695656218, val_acc: 0.5799334490740741</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="62">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_acc_curves(loss_dict):</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"</span><span class="sc">{</span>loss_dict[<span class="st">'config'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>([value <span class="cf">for</span> value <span class="kw">in</span> loss_dict[<span class="st">"train_acc"</span>]])</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    plt.plot(<span class="bu">range</span>(<span class="dv">1</span>,n<span class="op">+</span><span class="dv">1</span>), [value <span class="cf">for</span> value <span class="kw">in</span>  loss_dict[<span class="st">"train_acc"</span>]], label<span class="op">=</span><span class="st">"Train Accuracy"</span>)</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    plt.plot(<span class="bu">range</span>(<span class="dv">1</span>,n<span class="op">+</span><span class="dv">1</span>), [value <span class="cf">for</span> value <span class="kw">in</span>  loss_dict[<span class="st">"val_acc"</span>]], label<span class="op">=</span><span class="st">"Validation Accuracy"</span>)</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="ss">f"</span><span class="sc">{</span>loss_dict[<span class="st">'epochs'</span>]<span class="sc">}</span><span class="ss"> times Epochs"</span>)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"Accuracy"</span>)</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    plt.legend(loc<span class="op">=</span><span class="st">'best'</span>)</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_loss_curves(loss_dict):</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"</span><span class="sc">{</span>loss_dict[<span class="st">'config'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>([value.cpu().data.numpy() <span class="cf">for</span> value <span class="kw">in</span> loss_dict[<span class="st">"train_loss"</span>]])</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>    plt.plot(<span class="bu">range</span>(<span class="dv">1</span>,n<span class="op">+</span><span class="dv">1</span>), [value.cpu().data.numpy() <span class="cf">for</span> value <span class="kw">in</span> loss_dict[<span class="st">"train_loss"</span>]], label<span class="op">=</span><span class="st">"Train Loss"</span>)</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>    plt.plot(<span class="bu">range</span>(<span class="dv">1</span>,n<span class="op">+</span><span class="dv">1</span>), [value.cpu().data.numpy() <span class="cf">for</span> value <span class="kw">in</span> loss_dict[<span class="st">"val_loss"</span>]], label<span class="op">=</span><span class="st">"Validation Loss"</span>)</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="ss">f"</span><span class="sc">{</span>loss_dict[<span class="st">'epochs'</span>]<span class="sc">}</span><span class="ss"> times Epochs"</span>)</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>    plt.legend(loc<span class="op">=</span><span class="st">'best'</span>)</span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="63">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>plot_acc_curves(loss_dict)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>plot_loss_curves(loss_dict)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab4%20Data%20Imputation_files/figure-html/cell-28-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab4%20Data%20Imputation_files/figure-html/cell-28-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="part-b-3-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-3-pt">Part (b) [3 pt]</h3>
+<p>While plotting training and validation loss is valuable, loss values are harder to compare than accuracy percentages. It would be nice to have a measure of “accuracy” in this problem.</p>
+<p>Since we will only be imputing missing categorical values, we will define an accuracy measure. For each record and for each categorical feature, we determine whether the model can predict the categorical feature given all the other features of the record.</p>
+<p>A function <code>get_accuracy</code> is written for you. It is up to you to figure out how to use the function. <strong>You don’t need to submit anything in this part.</strong> To earn the marks, correctly plot the training and validation accuracy every few iterations as part of your training curve.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="135">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_accuracy(model, data_loader, baseline_model <span class="op">=</span> <span class="va">False</span>):</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return the "accuracy" of the autoencoder model across a data set.</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="co">    That is, for each record and for each categorical feature, </span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co">    we determine whether the model can successfully predict the value</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="co">    of the categorical feature given all the other features of the </span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="co">    record. The returned "accuracy" measure is the percentage of times </span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="co">    that our model is successful.</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="co">        </span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="co">       - model: the autoencoder model, an instance of nn.Module</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a><span class="co">       - data_loader: an instance of torch.utils.data.DataLoader</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a><span class="co">    Example (to illustrate how get_accuracy is intended to be called.</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a><span class="co">             Depending on your variable naming this code might require</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a><span class="co">             modification.)</span></span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a><span class="co">        &gt;&gt;&gt; model = AutoEncoder()</span></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a><span class="co">        &gt;&gt;&gt; vdl = torch.utils.data.DataLoader(data_valid, batch_size=256, shuffle=True)</span></span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a><span class="co">        &gt;&gt;&gt; get_accuracy(model, vdl)</span></span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a>    acc <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col <span class="kw">in</span> catcols:</span>
+<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> item <span class="kw">in</span> data_loader: <span class="co"># minibatches</span></span>
+<span id="cb39-25"><a href="#cb39-25" aria-hidden="true" tabindex="-1"></a>            item <span class="op">=</span> item[<span class="dv">0</span>]</span>
+<span id="cb39-26"><a href="#cb39-26" aria-hidden="true" tabindex="-1"></a>            inp <span class="op">=</span> item.detach().numpy()</span>
+<span id="cb39-27"><a href="#cb39-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> baseline_model: </span>
+<span id="cb39-28"><a href="#cb39-28" aria-hidden="true" tabindex="-1"></a>                missing_cols <span class="op">=</span> <span class="bu">set</span>(<span class="bu">range</span>(cat_index[col], cat_index[col] <span class="op">+</span> <span class="bu">len</span>(cat_values[col])))</span>
+<span id="cb39-29"><a href="#cb39-29" aria-hidden="true" tabindex="-1"></a>                out <span class="op">=</span> model(zero_out_feature(item.clone(), col), missing_cols).detach().numpy()</span>
+<span id="cb39-30"><a href="#cb39-30" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>: </span>
+<span id="cb39-31"><a href="#cb39-31" aria-hidden="true" tabindex="-1"></a>                out <span class="op">=</span> model(zero_out_feature(item.clone(), col).to(<span class="st">"cuda:0"</span>)).cpu().detach().numpy()</span>
+<span id="cb39-32"><a href="#cb39-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(out.shape[<span class="dv">0</span>]): <span class="co"># record in minibatch</span></span>
+<span id="cb39-33"><a href="#cb39-33" aria-hidden="true" tabindex="-1"></a>                acc <span class="op">+=</span> <span class="bu">int</span>(get_feature(out[i], col) <span class="op">==</span> get_feature(inp[i], col))</span>
+<span id="cb39-34"><a href="#cb39-34" aria-hidden="true" tabindex="-1"></a>                total <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb39-35"><a href="#cb39-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> acc <span class="op">/</span> total</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="64">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>FCAutoEncoder <span class="op">=</span> AutoEncoder()</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>model, loss_dict <span class="op">=</span> train(FCAutoEncoder, train_loader, val_loader, num_epochs<span class="op">=</span><span class="dv">120</span>, learning_rate<span class="op">=</span><span class="fl">4e-4</span>, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+AutoEncoder                              [4608, 57]                --
+├─Sequential: 1-1                        [4608, 12]                --
+│    └─0.weight                                                    ├─3,249
+│    └─0.bias                                                      ├─57
+│    └─1.weight                                                    ├─2,679
+│    └─1.bias                                                      ├─47
+│    └─2.weight                                                    ├─1,739
+│    └─2.bias                                                      ├─37
+│    └─3.weight                                                    ├─1,110
+│    └─3.bias                                                      ├─30
+│    └─4.weight                                                    ├─600
+│    └─4.bias                                                      ├─20
+│    └─5.weight                                                    ├─240
+│    └─5.bias                                                      └─12
+│    └─Linear: 2-1                       [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-2                       [4608, 47]                2,726
+│    │    └─weight                                                 ├─2,679
+│    │    └─bias                                                   └─47
+│    └─Linear: 2-3                       [4608, 37]                1,776
+│    │    └─weight                                                 ├─1,739
+│    │    └─bias                                                   └─37
+│    └─Linear: 2-4                       [4608, 30]                1,140
+│    │    └─weight                                                 ├─1,110
+│    │    └─bias                                                   └─30
+│    └─Linear: 2-5                       [4608, 20]                620
+│    │    └─weight                                                 ├─600
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-6                       [4608, 12]                252
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─12
+├─Sequential: 1-2                        [4608, 57]                --
+│    └─0.weight                                                    ├─240
+│    └─0.bias                                                      ├─20
+│    └─1.weight                                                    ├─560
+│    └─1.bias                                                      ├─28
+│    └─2.weight                                                    ├─1,120
+│    └─2.bias                                                      ├─40
+│    └─3.weight                                                    ├─2,000
+│    └─3.bias                                                      ├─50
+│    └─4.weight                                                    ├─2,850
+│    └─4.bias                                                      ├─57
+│    └─5.weight                                                    ├─3,249
+│    └─5.bias                                                      └─57
+│    └─Linear: 2-7                       [4608, 20]                260
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-8                       [4608, 28]                588
+│    │    └─weight                                                 ├─560
+│    │    └─bias                                                   └─28
+│    └─Linear: 2-9                       [4608, 40]                1,160
+│    │    └─weight                                                 ├─1,120
+│    │    └─bias                                                   └─40
+│    └─Linear: 2-10                      [4608, 50]                2,050
+│    │    └─weight                                                 ├─2,000
+│    │    └─bias                                                   └─50
+│    └─Linear: 2-11                      [4608, 57]                2,907
+│    │    └─weight                                                 ├─2,850
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-12                      [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Sigmoid: 2-13                     [4608, 57]                --
+==========================================================================================
+Total params: 20,091
+Trainable params: 20,091
+Non-trainable params: 0
+Total mult-adds (M): 92.58
+==========================================================================================
+Input size (MB): 1.05
+Forward/backward pass size (MB): 16.77
+Params size (MB): 0.08
+Estimated Total Size (MB): 17.90
+==========================================================================================
+epoch: 0, train_loss: 0.19650046527385712, val_loss: 0.15320537984371185
+epoch: 0, train_acc: 0.4579806529625151, val_acc: 0.4568142361111111
+epoch: 10, train_loss: 0.1296728402376175, val_loss: 0.12882983684539795
+epoch: 10, train_acc: 0.5482203205903327, val_acc: 0.5478877314814815
+epoch: 20, train_loss: 0.12780451774597168, val_loss: 0.12700356543064117
+epoch: 20, train_acc: 0.557614795522897, val_acc: 0.5571469907407407
+epoch: 30, train_loss: 0.11755353212356567, val_loss: 0.11606036126613617
+epoch: 30, train_acc: 0.5632111741543422, val_acc: 0.5649594907407407
+epoch: 40, train_loss: 0.11723577976226807, val_loss: 0.11865691095590591
+epoch: 40, train_acc: 0.5621957647350634, val_acc: 0.5626446759259259
+epoch: 50, train_loss: 0.11725984513759613, val_loss: 0.11577272415161133
+epoch: 50, train_acc: 0.5631491644188138, val_acc: 0.5657190393518519
+epoch: 60, train_loss: 0.11730127036571503, val_loss: 0.11664751172065735
+epoch: 60, train_acc: 0.5638545251604502, val_acc: 0.5665509259259259
+epoch: 70, train_loss: 0.11703629046678543, val_loss: 0.1161196231842041
+epoch: 70, train_acc: 0.5571807273741978, val_acc: 0.5588107638888888
+epoch: 80, train_loss: 0.11734554171562195, val_loss: 0.11593350023031235
+epoch: 80, train_acc: 0.5580721173224196, val_acc: 0.5602575231481481
+epoch: 90, train_loss: 0.11707903444766998, val_loss: 0.11565212160348892
+epoch: 90, train_acc: 0.5590797755247574, val_acc: 0.5615234375
+epoch: 100, train_loss: 0.11719189584255219, val_loss: 0.11528501659631729
+epoch: 100, train_acc: 0.5592735559482839, val_acc: 0.5626446759259259
+epoch: 110, train_loss: 0.11677169054746628, val_loss: 0.11604857444763184
+epoch: 110, train_acc: 0.5613818869562521, val_acc: 0.5624638310185185</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="66">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>plot_acc_curves(loss_dict)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>plot_loss_curves(loss_dict)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab4%20Data%20Imputation_files/figure-html/cell-31-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab4%20Data%20Imputation_files/figure-html/cell-31-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="part-c-4-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-4-pt">Part (c) [4 pt]</h3>
+<p>Run your updated training code, using reasonable initial hyperparameters.</p>
+<p>Include your training curve in your submission.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="69">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>FCAutoEncoder <span class="op">=</span> AutoEncoder()</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>model, loss_dict <span class="op">=</span> train(FCAutoEncoder, train_loader, val_loader, num_epochs<span class="op">=</span><span class="dv">200</span>, learning_rate<span class="op">=</span><span class="fl">2e-3</span>, weight_decay<span class="op">=</span><span class="fl">1e-5</span>, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+AutoEncoder                              [4608, 57]                --
+├─Sequential: 1-1                        [4608, 12]                --
+│    └─0.weight                                                    ├─3,249
+│    └─0.bias                                                      ├─57
+│    └─1.weight                                                    ├─2,679
+│    └─1.bias                                                      ├─47
+│    └─2.weight                                                    ├─1,739
+│    └─2.bias                                                      ├─37
+│    └─3.weight                                                    ├─1,110
+│    └─3.bias                                                      ├─30
+│    └─4.weight                                                    ├─600
+│    └─4.bias                                                      ├─20
+│    └─5.weight                                                    ├─240
+│    └─5.bias                                                      └─12
+│    └─Linear: 2-1                       [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-2                       [4608, 47]                2,726
+│    │    └─weight                                                 ├─2,679
+│    │    └─bias                                                   └─47
+│    └─Linear: 2-3                       [4608, 37]                1,776
+│    │    └─weight                                                 ├─1,739
+│    │    └─bias                                                   └─37
+│    └─Linear: 2-4                       [4608, 30]                1,140
+│    │    └─weight                                                 ├─1,110
+│    │    └─bias                                                   └─30
+│    └─Linear: 2-5                       [4608, 20]                620
+│    │    └─weight                                                 ├─600
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-6                       [4608, 12]                252
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─12
+├─Sequential: 1-2                        [4608, 57]                --
+│    └─0.weight                                                    ├─240
+│    └─0.bias                                                      ├─20
+│    └─1.weight                                                    ├─560
+│    └─1.bias                                                      ├─28
+│    └─2.weight                                                    ├─1,120
+│    └─2.bias                                                      ├─40
+│    └─3.weight                                                    ├─2,000
+│    └─3.bias                                                      ├─50
+│    └─4.weight                                                    ├─2,850
+│    └─4.bias                                                      ├─57
+│    └─5.weight                                                    ├─3,249
+│    └─5.bias                                                      └─57
+│    └─Linear: 2-7                       [4608, 20]                260
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-8                       [4608, 28]                588
+│    │    └─weight                                                 ├─560
+│    │    └─bias                                                   └─28
+│    └─Linear: 2-9                       [4608, 40]                1,160
+│    │    └─weight                                                 ├─1,120
+│    │    └─bias                                                   └─40
+│    └─Linear: 2-10                      [4608, 50]                2,050
+│    │    └─weight                                                 ├─2,000
+│    │    └─bias                                                   └─50
+│    └─Linear: 2-11                      [4608, 57]                2,907
+│    │    └─weight                                                 ├─2,850
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-12                      [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Sigmoid: 2-13                     [4608, 57]                --
+==========================================================================================
+Total params: 20,091
+Trainable params: 20,091
+Non-trainable params: 0
+Total mult-adds (M): 92.58
+==========================================================================================
+Input size (MB): 1.05
+Forward/backward pass size (MB): 16.77
+Params size (MB): 0.08
+Estimated Total Size (MB): 17.90
+==========================================================================================
+epoch: 0, train_loss: 0.16350798308849335, val_loss: 0.13589662313461304
+epoch: 0, train_acc: 0.5098750503829101, val_acc: 0.5065827546296297
+epoch: 10, train_loss: 0.10111326724290848, val_loss: 0.09753181785345078
+epoch: 10, train_acc: 0.6301971909589805, val_acc: 0.6311848958333334
+epoch: 20, train_loss: 0.09710381180047989, val_loss: 0.09447476267814636
+epoch: 20, train_acc: 0.6476141754255418, val_acc: 0.6488353587962963
+epoch: 30, train_loss: 0.09679349511861801, val_loss: 0.09402942657470703
+epoch: 30, train_acc: 0.6481412581775339, val_acc: 0.6495225694444444
+epoch: 40, train_loss: 0.09701282531023026, val_loss: 0.09486211091279984
+epoch: 40, train_acc: 0.6491799212476359, val_acc: 0.6510778356481481
+epoch: 50, train_loss: 0.09667780250310898, val_loss: 0.09393224865198135
+epoch: 50, train_acc: 0.656977645490342, val_acc: 0.6575520833333334
+epoch: 60, train_loss: 0.0964442566037178, val_loss: 0.09427308291196823
+epoch: 60, train_acc: 0.657636498930332, val_acc: 0.6573712384259259
+epoch: 70, train_loss: 0.0963512733578682, val_loss: 0.09502405673265457
+epoch: 70, train_acc: 0.6517223204043034, val_acc: 0.65234375
+epoch: 80, train_loss: 0.09671428054571152, val_loss: 0.09514930099248886
+epoch: 80, train_acc: 0.6562180262301182, val_acc: 0.6570095486111112
+epoch: 90, train_loss: 0.09635379165410995, val_loss: 0.09591325372457504
+epoch: 90, train_acc: 0.6533810808296903, val_acc: 0.6532118055555556
+epoch: 100, train_loss: 0.09602594375610352, val_loss: 0.09466587752103806
+epoch: 100, train_acc: 0.6564195578705857, val_acc: 0.6570457175925926
+epoch: 110, train_loss: 0.09618617594242096, val_loss: 0.09448018670082092
+epoch: 110, train_acc: 0.6542104610423837, val_acc: 0.6539351851851852
+epoch: 120, train_loss: 0.09603038430213928, val_loss: 0.09555862843990326
+epoch: 120, train_acc: 0.6561792701454129, val_acc: 0.6561776620370371
+epoch: 130, train_loss: 0.09586621820926666, val_loss: 0.09610024839639664
+epoch: 130, train_acc: 0.6531640467553406, val_acc: 0.6529586226851852
+epoch: 140, train_loss: 0.095892995595932, val_loss: 0.09459006786346436
+epoch: 140, train_acc: 0.6611400489876911, val_acc: 0.6617838541666666
+epoch: 150, train_loss: 0.09579801559448242, val_loss: 0.0936271995306015
+epoch: 150, train_acc: 0.6475676681238954, val_acc: 0.6467013888888888
+epoch: 160, train_loss: 0.09555616229772568, val_loss: 0.09440086036920547
+epoch: 160, train_acc: 0.6430797135150219, val_acc: 0.6418185763888888
+epoch: 170, train_loss: 0.09596523642539978, val_loss: 0.09361530095338821
+epoch: 170, train_acc: 0.6590317179797228, val_acc: 0.6594328703703703
+epoch: 180, train_loss: 0.09583473205566406, val_loss: 0.09469461441040039
+epoch: 180, train_acc: 0.6524586860137042, val_acc: 0.6522714120370371
+epoch: 190, train_loss: 0.09584932029247284, val_loss: 0.09477134048938751
+epoch: 190, train_acc: 0.6572179332155148, val_acc: 0.6573712384259259</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="70">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>plot_acc_curves(loss_dict)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>plot_loss_curves(loss_dict)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab4%20Data%20Imputation_files/figure-html/cell-33-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab4%20Data%20Imputation_files/figure-html/cell-33-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="part-d-5-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-d-5-pt">Part (d) [5 pt]</h3>
+<p>Tune your hyperparameters, training at least 4 different models (4 sets of hyperparameters).</p>
+<p>Do not include all your training curves. Instead, explain what hyperparameters you tried, what their effect was, and what your thought process was as you chose the next set of hyperparameters to try.</p>
+<p>We will try the four following sets of hyperparameters: 1. A high learning rate with a high weight decay 2. A high learning rate with a lower weight decay 3. A lower learning rate with a high weight decay 4. A lower learning rate with a lower weight decay 5. Based on the above, we will try a larger epoch count</p>
+<p>This will essentially allow for us to perform a grid search over the available hyperparameters that I have coded. And then choose the combination, e.g., high learning rate and high weight decay, using a binary search strategy. This will be the main thinking for model 5 where we select the hyperparameters that we train over more epochs.</p>
+<div class="cell" data-execution_count="71">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># high learning rate, high WD</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>FCAutoEncoder <span class="op">=</span> AutoEncoder()</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>model, loss_dict <span class="op">=</span> train(FCAutoEncoder, train_loader, val_loader, num_epochs<span class="op">=</span><span class="dv">100</span>, learning_rate<span class="op">=</span><span class="fl">6e-2</span>, weight_decay<span class="op">=</span><span class="fl">1e-3</span>, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+AutoEncoder                              [4608, 57]                --
+├─Sequential: 1-1                        [4608, 12]                --
+│    └─0.weight                                                    ├─3,249
+│    └─0.bias                                                      ├─57
+│    └─1.weight                                                    ├─2,679
+│    └─1.bias                                                      ├─47
+│    └─2.weight                                                    ├─1,739
+│    └─2.bias                                                      ├─37
+│    └─3.weight                                                    ├─1,110
+│    └─3.bias                                                      ├─30
+│    └─4.weight                                                    ├─600
+│    └─4.bias                                                      ├─20
+│    └─5.weight                                                    ├─240
+│    └─5.bias                                                      └─12
+│    └─Linear: 2-1                       [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-2                       [4608, 47]                2,726
+│    │    └─weight                                                 ├─2,679
+│    │    └─bias                                                   └─47
+│    └─Linear: 2-3                       [4608, 37]                1,776
+│    │    └─weight                                                 ├─1,739
+│    │    └─bias                                                   └─37
+│    └─Linear: 2-4                       [4608, 30]                1,140
+│    │    └─weight                                                 ├─1,110
+│    │    └─bias                                                   └─30
+│    └─Linear: 2-5                       [4608, 20]                620
+│    │    └─weight                                                 ├─600
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-6                       [4608, 12]                252
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─12
+├─Sequential: 1-2                        [4608, 57]                --
+│    └─0.weight                                                    ├─240
+│    └─0.bias                                                      ├─20
+│    └─1.weight                                                    ├─560
+│    └─1.bias                                                      ├─28
+│    └─2.weight                                                    ├─1,120
+│    └─2.bias                                                      ├─40
+│    └─3.weight                                                    ├─2,000
+│    └─3.bias                                                      ├─50
+│    └─4.weight                                                    ├─2,850
+│    └─4.bias                                                      ├─57
+│    └─5.weight                                                    ├─3,249
+│    └─5.bias                                                      └─57
+│    └─Linear: 2-7                       [4608, 20]                260
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-8                       [4608, 28]                588
+│    │    └─weight                                                 ├─560
+│    │    └─bias                                                   └─28
+│    └─Linear: 2-9                       [4608, 40]                1,160
+│    │    └─weight                                                 ├─1,120
+│    │    └─bias                                                   └─40
+│    └─Linear: 2-10                      [4608, 50]                2,050
+│    │    └─weight                                                 ├─2,000
+│    │    └─bias                                                   └─50
+│    └─Linear: 2-11                      [4608, 57]                2,907
+│    │    └─weight                                                 ├─2,850
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-12                      [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Sigmoid: 2-13                     [4608, 57]                --
+==========================================================================================
+Total params: 20,091
+Trainable params: 20,091
+Non-trainable params: 0
+Total mult-adds (M): 92.58
+==========================================================================================
+Input size (MB): 1.05
+Forward/backward pass size (MB): 16.77
+Params size (MB): 0.08
+Estimated Total Size (MB): 17.90
+==========================================================================================
+epoch: 0, train_loss: 0.5030332207679749, val_loss: 0.5977501273155212
+epoch: 0, train_acc: 0.1250116268254116, val_acc: 0.12507233796296297
+epoch: 10, train_loss: 0.4942972958087921, val_loss: 0.7176238894462585
+epoch: 10, train_acc: 0.23252100579791027, val_acc: 0.23328993055555555
+epoch: 20, train_loss: 0.5574783682823181, val_loss: 0.5407599806785583
+epoch: 20, train_acc: 0.2727963290236567, val_acc: 0.2742332175925926
+epoch: 30, train_loss: 0.8430361151695251, val_loss: 0.8313632011413574
+epoch: 30, train_acc: 0.2104842960344774, val_acc: 0.2105034722222222
+epoch: 40, train_loss: 0.27510350942611694, val_loss: 0.23407931625843048
+epoch: 40, train_acc: 0.19185037050816978, val_acc: 0.19223813657407407
+epoch: 50, train_loss: 0.19435147941112518, val_loss: 0.18663515150547028
+epoch: 50, train_acc: 0.4062645335317645, val_acc: 0.40346498842592593
+epoch: 60, train_loss: 0.16892503201961517, val_loss: 0.15700899064540863
+epoch: 60, train_acc: 0.45718227761758595, val_acc: 0.4545355902777778
+epoch: 70, train_loss: 0.1565491259098053, val_loss: 0.15707500278949738
+epoch: 70, train_acc: 0.45907357455120457, val_acc: 0.4580078125
+epoch: 80, train_loss: 0.1565597653388977, val_loss: 0.15672360360622406
+epoch: 80, train_acc: 0.45907357455120457, val_acc: 0.4580078125
+epoch: 90, train_loss: 0.15645688772201538, val_loss: 0.15681621432304382
+epoch: 90, train_acc: 0.45907357455120457, val_acc: 0.4580078125</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="75">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># high learning rate, low WD</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>FCAutoEncoder <span class="op">=</span> AutoEncoder()</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>model, loss_dict <span class="op">=</span> train(FCAutoEncoder, train_loader, val_loader, num_epochs<span class="op">=</span><span class="dv">100</span>, learning_rate<span class="op">=</span><span class="fl">6e-2</span>, weight_decay<span class="op">=</span><span class="fl">1e-5</span>, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+AutoEncoder                              [4608, 57]                --
+├─Sequential: 1-1                        [4608, 12]                --
+│    └─0.weight                                                    ├─3,249
+│    └─0.bias                                                      ├─57
+│    └─1.weight                                                    ├─2,679
+│    └─1.bias                                                      ├─47
+│    └─2.weight                                                    ├─1,739
+│    └─2.bias                                                      ├─37
+│    └─3.weight                                                    ├─1,110
+│    └─3.bias                                                      ├─30
+│    └─4.weight                                                    ├─600
+│    └─4.bias                                                      ├─20
+│    └─5.weight                                                    ├─240
+│    └─5.bias                                                      └─12
+│    └─Linear: 2-1                       [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-2                       [4608, 47]                2,726
+│    │    └─weight                                                 ├─2,679
+│    │    └─bias                                                   └─47
+│    └─Linear: 2-3                       [4608, 37]                1,776
+│    │    └─weight                                                 ├─1,739
+│    │    └─bias                                                   └─37
+│    └─Linear: 2-4                       [4608, 30]                1,140
+│    │    └─weight                                                 ├─1,110
+│    │    └─bias                                                   └─30
+│    └─Linear: 2-5                       [4608, 20]                620
+│    │    └─weight                                                 ├─600
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-6                       [4608, 12]                252
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─12
+├─Sequential: 1-2                        [4608, 57]                --
+│    └─0.weight                                                    ├─240
+│    └─0.bias                                                      ├─20
+│    └─1.weight                                                    ├─560
+│    └─1.bias                                                      ├─28
+│    └─2.weight                                                    ├─1,120
+│    └─2.bias                                                      ├─40
+│    └─3.weight                                                    ├─2,000
+│    └─3.bias                                                      ├─50
+│    └─4.weight                                                    ├─2,850
+│    └─4.bias                                                      ├─57
+│    └─5.weight                                                    ├─3,249
+│    └─5.bias                                                      └─57
+│    └─Linear: 2-7                       [4608, 20]                260
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-8                       [4608, 28]                588
+│    │    └─weight                                                 ├─560
+│    │    └─bias                                                   └─28
+│    └─Linear: 2-9                       [4608, 40]                1,160
+│    │    └─weight                                                 ├─1,120
+│    │    └─bias                                                   └─40
+│    └─Linear: 2-10                      [4608, 50]                2,050
+│    │    └─weight                                                 ├─2,000
+│    │    └─bias                                                   └─50
+│    └─Linear: 2-11                      [4608, 57]                2,907
+│    │    └─weight                                                 ├─2,850
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-12                      [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Sigmoid: 2-13                     [4608, 57]                --
+==========================================================================================
+Total params: 20,091
+Trainable params: 20,091
+Non-trainable params: 0
+Total mult-adds (M): 92.58
+==========================================================================================
+Input size (MB): 1.05
+Forward/backward pass size (MB): 16.77
+Params size (MB): 0.08
+Estimated Total Size (MB): 17.90
+==========================================================================================
+epoch: 0, train_loss: 0.2868417501449585, val_loss: 0.22494566440582275
+epoch: 0, train_acc: 0.3187455430502589, val_acc: 0.31984230324074076
+epoch: 10, train_loss: 0.9014258980751038, val_loss: 0.8849048614501953
+epoch: 10, train_acc: 0.0911388087929805, val_acc: 0.09241174768518519
+epoch: 20, train_loss: 0.559620201587677, val_loss: 0.5531684160232544
+epoch: 20, train_acc: 0.1595898055994791, val_acc: 0.16120515046296297
+epoch: 30, train_loss: 0.6714227199554443, val_loss: 0.5306887030601501
+epoch: 30, train_acc: 0.14635847828109014, val_acc: 0.14872685185185186
+epoch: 40, train_loss: 0.5203275084495544, val_loss: 0.517612874507904
+epoch: 40, train_acc: 0.1563187920503519, val_acc: 0.1576244212962963
+epoch: 50, train_loss: 0.6175085306167603, val_loss: 0.6094297170639038
+epoch: 50, train_acc: 0.1830837441478312, val_acc: 0.18395543981481483
+epoch: 60, train_loss: 0.586700439453125, val_loss: 0.5914342403411865
+epoch: 60, train_acc: 0.3002433882119493, val_acc: 0.3013599537037037
+epoch: 70, train_loss: 0.6224239468574524, val_loss: 0.6555841565132141
+epoch: 70, train_acc: 0.18219235419960933, val_acc: 0.18160445601851852
+epoch: 80, train_loss: 0.5891613364219666, val_loss: 0.5598772764205933
+epoch: 80, train_acc: 0.1650621647598673, val_acc: 0.16608796296296297
+epoch: 90, train_loss: 0.48640769720077515, val_loss: 0.4906626045703888
+epoch: 90, train_acc: 0.23662139955973088, val_acc: 0.23509837962962962</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="73">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># lower learning rate, high WD</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>FCAutoEncoder <span class="op">=</span> AutoEncoder()</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>model, loss_dict <span class="op">=</span> train(FCAutoEncoder, train_loader, val_loader, num_epochs<span class="op">=</span><span class="dv">100</span>, learning_rate<span class="op">=</span><span class="fl">2e-4</span>, weight_decay<span class="op">=</span><span class="fl">1e-3</span>, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+AutoEncoder                              [4608, 57]                --
+├─Sequential: 1-1                        [4608, 12]                --
+│    └─0.weight                                                    ├─3,249
+│    └─0.bias                                                      ├─57
+│    └─1.weight                                                    ├─2,679
+│    └─1.bias                                                      ├─47
+│    └─2.weight                                                    ├─1,739
+│    └─2.bias                                                      ├─37
+│    └─3.weight                                                    ├─1,110
+│    └─3.bias                                                      ├─30
+│    └─4.weight                                                    ├─600
+│    └─4.bias                                                      ├─20
+│    └─5.weight                                                    ├─240
+│    └─5.bias                                                      └─12
+│    └─Linear: 2-1                       [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-2                       [4608, 47]                2,726
+│    │    └─weight                                                 ├─2,679
+│    │    └─bias                                                   └─47
+│    └─Linear: 2-3                       [4608, 37]                1,776
+│    │    └─weight                                                 ├─1,739
+│    │    └─bias                                                   └─37
+│    └─Linear: 2-4                       [4608, 30]                1,140
+│    │    └─weight                                                 ├─1,110
+│    │    └─bias                                                   └─30
+│    └─Linear: 2-5                       [4608, 20]                620
+│    │    └─weight                                                 ├─600
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-6                       [4608, 12]                252
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─12
+├─Sequential: 1-2                        [4608, 57]                --
+│    └─0.weight                                                    ├─240
+│    └─0.bias                                                      ├─20
+│    └─1.weight                                                    ├─560
+│    └─1.bias                                                      ├─28
+│    └─2.weight                                                    ├─1,120
+│    └─2.bias                                                      ├─40
+│    └─3.weight                                                    ├─2,000
+│    └─3.bias                                                      ├─50
+│    └─4.weight                                                    ├─2,850
+│    └─4.bias                                                      ├─57
+│    └─5.weight                                                    ├─3,249
+│    └─5.bias                                                      └─57
+│    └─Linear: 2-7                       [4608, 20]                260
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-8                       [4608, 28]                588
+│    │    └─weight                                                 ├─560
+│    │    └─bias                                                   └─28
+│    └─Linear: 2-9                       [4608, 40]                1,160
+│    │    └─weight                                                 ├─1,120
+│    │    └─bias                                                   └─40
+│    └─Linear: 2-10                      [4608, 50]                2,050
+│    │    └─weight                                                 ├─2,000
+│    │    └─bias                                                   └─50
+│    └─Linear: 2-11                      [4608, 57]                2,907
+│    │    └─weight                                                 ├─2,850
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-12                      [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Sigmoid: 2-13                     [4608, 57]                --
+==========================================================================================
+Total params: 20,091
+Trainable params: 20,091
+Non-trainable params: 0
+Total mult-adds (M): 92.58
+==========================================================================================
+Input size (MB): 1.05
+Forward/backward pass size (MB): 16.77
+Params size (MB): 0.08
+Estimated Total Size (MB): 17.90
+==========================================================================================
+epoch: 0, train_loss: 0.23870640993118286, val_loss: 0.1571282148361206
+epoch: 0, train_acc: 0.4427495116733327, val_acc: 0.44169560185185186
+epoch: 10, train_loss: 0.15597547590732574, val_loss: 0.15605829656124115
+epoch: 10, train_acc: 0.45907357455120457, val_acc: 0.4580078125
+epoch: 20, train_loss: 0.15595705807209015, val_loss: 0.1560332477092743
+epoch: 20, train_acc: 0.45907357455120457, val_acc: 0.4580078125
+epoch: 30, train_loss: 0.15595701336860657, val_loss: 0.15602293610572815
+epoch: 30, train_acc: 0.45907357455120457, val_acc: 0.4580078125
+epoch: 40, train_loss: 0.15595783293247223, val_loss: 0.15601320564746857
+epoch: 40, train_acc: 0.45907357455120457, val_acc: 0.4580078125
+epoch: 50, train_loss: 0.15595784783363342, val_loss: 0.15600837767124176
+epoch: 50, train_acc: 0.45907357455120457, val_acc: 0.4580078125
+epoch: 60, train_loss: 0.15595762431621552, val_loss: 0.15600818395614624
+epoch: 60, train_acc: 0.45907357455120457, val_acc: 0.4580078125
+epoch: 70, train_loss: 0.1559571772813797, val_loss: 0.15600888431072235
+epoch: 70, train_acc: 0.45907357455120457, val_acc: 0.4580078125
+epoch: 80, train_loss: 0.1559567153453827, val_loss: 0.15600994229316711
+epoch: 80, train_acc: 0.45907357455120457, val_acc: 0.4580078125
+epoch: 90, train_loss: 0.1559562385082245, val_loss: 0.15601082146167755
+epoch: 90, train_acc: 0.45907357455120457, val_acc: 0.4580078125</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="74">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># lower learning rate, low WD</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>FCAutoEncoder <span class="op">=</span> AutoEncoder()</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>model, loss_dict <span class="op">=</span> train(FCAutoEncoder, train_loader, val_loader, num_epochs<span class="op">=</span><span class="dv">100</span>, learning_rate<span class="op">=</span><span class="fl">2e-4</span>, weight_decay<span class="op">=</span><span class="fl">1e-5</span>, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+AutoEncoder                              [4608, 57]                --
+├─Sequential: 1-1                        [4608, 12]                --
+│    └─0.weight                                                    ├─3,249
+│    └─0.bias                                                      ├─57
+│    └─1.weight                                                    ├─2,679
+│    └─1.bias                                                      ├─47
+│    └─2.weight                                                    ├─1,739
+│    └─2.bias                                                      ├─37
+│    └─3.weight                                                    ├─1,110
+│    └─3.bias                                                      ├─30
+│    └─4.weight                                                    ├─600
+│    └─4.bias                                                      ├─20
+│    └─5.weight                                                    ├─240
+│    └─5.bias                                                      └─12
+│    └─Linear: 2-1                       [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-2                       [4608, 47]                2,726
+│    │    └─weight                                                 ├─2,679
+│    │    └─bias                                                   └─47
+│    └─Linear: 2-3                       [4608, 37]                1,776
+│    │    └─weight                                                 ├─1,739
+│    │    └─bias                                                   └─37
+│    └─Linear: 2-4                       [4608, 30]                1,140
+│    │    └─weight                                                 ├─1,110
+│    │    └─bias                                                   └─30
+│    └─Linear: 2-5                       [4608, 20]                620
+│    │    └─weight                                                 ├─600
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-6                       [4608, 12]                252
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─12
+├─Sequential: 1-2                        [4608, 57]                --
+│    └─0.weight                                                    ├─240
+│    └─0.bias                                                      ├─20
+│    └─1.weight                                                    ├─560
+│    └─1.bias                                                      ├─28
+│    └─2.weight                                                    ├─1,120
+│    └─2.bias                                                      ├─40
+│    └─3.weight                                                    ├─2,000
+│    └─3.bias                                                      ├─50
+│    └─4.weight                                                    ├─2,850
+│    └─4.bias                                                      ├─57
+│    └─5.weight                                                    ├─3,249
+│    └─5.bias                                                      └─57
+│    └─Linear: 2-7                       [4608, 20]                260
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-8                       [4608, 28]                588
+│    │    └─weight                                                 ├─560
+│    │    └─bias                                                   └─28
+│    └─Linear: 2-9                       [4608, 40]                1,160
+│    │    └─weight                                                 ├─1,120
+│    │    └─bias                                                   └─40
+│    └─Linear: 2-10                      [4608, 50]                2,050
+│    │    └─weight                                                 ├─2,000
+│    │    └─bias                                                   └─50
+│    └─Linear: 2-11                      [4608, 57]                2,907
+│    │    └─weight                                                 ├─2,850
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-12                      [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Sigmoid: 2-13                     [4608, 57]                --
+==========================================================================================
+Total params: 20,091
+Trainable params: 20,091
+Non-trainable params: 0
+Total mult-adds (M): 92.58
+==========================================================================================
+Input size (MB): 1.05
+Forward/backward pass size (MB): 16.77
+Params size (MB): 0.08
+Estimated Total Size (MB): 17.90
+==========================================================================================
+epoch: 0, train_loss: 0.22502842545509338, val_loss: 0.1546163260936737
+epoch: 0, train_acc: 0.45774036523734224, val_acc: 0.45652488425925924
+epoch: 10, train_loss: 0.12747928500175476, val_loss: 0.12583349645137787
+epoch: 10, train_acc: 0.5654977831519549, val_acc: 0.5650679976851852
+epoch: 20, train_loss: 0.11648808419704437, val_loss: 0.11538629978895187
+epoch: 20, train_acc: 0.5700865035810623, val_acc: 0.5715422453703703
+epoch: 30, train_loss: 0.11202333122491837, val_loss: 0.10926668345928192
+epoch: 30, train_acc: 0.5886661705887825, val_acc: 0.5870587384259259
+epoch: 40, train_loss: 0.10487788170576096, val_loss: 0.1019371747970581
+epoch: 40, train_acc: 0.5746442191424054, val_acc: 0.5764250578703703
+epoch: 50, train_loss: 0.1041886955499649, val_loss: 0.1016688197851181
+epoch: 50, train_acc: 0.5975335627693548, val_acc: 0.599609375
+epoch: 60, train_loss: 0.10358430445194244, val_loss: 0.10109434276819229
+epoch: 60, train_acc: 0.5993550987505039, val_acc: 0.5999348958333334
+epoch: 70, train_loss: 0.10308339446783066, val_loss: 0.10160449892282486
+epoch: 70, train_acc: 0.6148652838495644, val_acc: 0.6156322337962963
+epoch: 80, train_loss: 0.09992983192205429, val_loss: 0.09717097133398056
+epoch: 80, train_acc: 0.6119585774966669, val_acc: 0.6130642361111112
+epoch: 90, train_loss: 0.09885147958993912, val_loss: 0.09626201540231705
+epoch: 90, train_acc: 0.6379019005983939, val_acc: 0.6387803819444444</code></pre>
+</div>
+</div>
+<p>From the 4 models above (4 choices of hyperparameters), we can see that having a lower learning rate with a lower weight decay performed the best, scoring almost 64% accuracy on the validation set. The lowest performing set of hyperparameters was the one with the high learning rate and lower weight decay. So from that view, it seems that for the 5th model, we should choose a set of hyperparameters that is lower on the learning rate and lower on the weight decay. Since we are trying to train the model for longer, we could maintain a similar decay parameter in order to help regularize the model in later epochs. Training the model longer could help the model learn more, i.e., work its way through harder to optimize surfaces, which may be needed with a lower learning rate.</p>
+<div class="cell" data-execution_count="81">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model 5</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>FCAutoEncoder <span class="op">=</span> AutoEncoder()</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>model, loss_dict <span class="op">=</span> train(FCAutoEncoder, train_loader, val_loader, num_epochs<span class="op">=</span><span class="dv">500</span>, learning_rate<span class="op">=</span><span class="fl">1.8e-4</span>, weight_decay<span class="op">=</span><span class="fl">1e-5</span>, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+AutoEncoder                              [4608, 57]                --
+├─Sequential: 1-1                        [4608, 12]                --
+│    └─0.weight                                                    ├─3,249
+│    └─0.bias                                                      ├─57
+│    └─1.weight                                                    ├─2,679
+│    └─1.bias                                                      ├─47
+│    └─2.weight                                                    ├─1,739
+│    └─2.bias                                                      ├─37
+│    └─3.weight                                                    ├─1,110
+│    └─3.bias                                                      ├─30
+│    └─4.weight                                                    ├─600
+│    └─4.bias                                                      ├─20
+│    └─5.weight                                                    ├─240
+│    └─5.bias                                                      └─12
+│    └─Linear: 2-1                       [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-2                       [4608, 47]                2,726
+│    │    └─weight                                                 ├─2,679
+│    │    └─bias                                                   └─47
+│    └─Linear: 2-3                       [4608, 37]                1,776
+│    │    └─weight                                                 ├─1,739
+│    │    └─bias                                                   └─37
+│    └─Linear: 2-4                       [4608, 30]                1,140
+│    │    └─weight                                                 ├─1,110
+│    │    └─bias                                                   └─30
+│    └─Linear: 2-5                       [4608, 20]                620
+│    │    └─weight                                                 ├─600
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-6                       [4608, 12]                252
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─12
+├─Sequential: 1-2                        [4608, 57]                --
+│    └─0.weight                                                    ├─240
+│    └─0.bias                                                      ├─20
+│    └─1.weight                                                    ├─560
+│    └─1.bias                                                      ├─28
+│    └─2.weight                                                    ├─1,120
+│    └─2.bias                                                      ├─40
+│    └─3.weight                                                    ├─2,000
+│    └─3.bias                                                      ├─50
+│    └─4.weight                                                    ├─2,850
+│    └─4.bias                                                      ├─57
+│    └─5.weight                                                    ├─3,249
+│    └─5.bias                                                      └─57
+│    └─Linear: 2-7                       [4608, 20]                260
+│    │    └─weight                                                 ├─240
+│    │    └─bias                                                   └─20
+│    └─Linear: 2-8                       [4608, 28]                588
+│    │    └─weight                                                 ├─560
+│    │    └─bias                                                   └─28
+│    └─Linear: 2-9                       [4608, 40]                1,160
+│    │    └─weight                                                 ├─1,120
+│    │    └─bias                                                   └─40
+│    └─Linear: 2-10                      [4608, 50]                2,050
+│    │    └─weight                                                 ├─2,000
+│    │    └─bias                                                   └─50
+│    └─Linear: 2-11                      [4608, 57]                2,907
+│    │    └─weight                                                 ├─2,850
+│    │    └─bias                                                   └─57
+│    └─Linear: 2-12                      [4608, 57]                3,306
+│    │    └─weight                                                 ├─3,249
+│    │    └─bias                                                   └─57
+│    └─Sigmoid: 2-13                     [4608, 57]                --
+==========================================================================================
+Total params: 20,091
+Trainable params: 20,091
+Non-trainable params: 0
+Total mult-adds (M): 92.58
+==========================================================================================
+Input size (MB): 1.05
+Forward/backward pass size (MB): 16.77
+Params size (MB): 0.08
+Estimated Total Size (MB): 17.90
+==========================================================================================
+epoch: 0, train_loss: 0.2254471629858017, val_loss: 0.15538588166236877
+epoch: 0, train_acc: 0.45905032090038134, val_acc: 0.45797164351851855
+epoch: 10, train_loss: 0.11843421310186386, val_loss: 0.11669634282588959
+epoch: 10, train_acc: 0.5842789818001426, val_acc: 0.5829716435185185
+epoch: 20, train_loss: 0.10681932419538498, val_loss: 0.10516973584890366
+epoch: 20, train_acc: 0.6202058723219546, val_acc: 0.6207320601851852
+epoch: 30, train_loss: 0.10572078078985214, val_loss: 0.10456246137619019
+epoch: 30, train_acc: 0.6416922456825722, val_acc: 0.6398654513888888
+epoch: 40, train_loss: 0.1044655442237854, val_loss: 0.10341266542673111
+epoch: 40, train_acc: 0.6429014355253775, val_acc: 0.6436993634259259
+epoch: 50, train_loss: 0.10351486504077911, val_loss: 0.10352227091789246
+epoch: 50, train_acc: 0.6424363625089139, val_acc: 0.6440610532407407
+epoch: 60, train_loss: 0.10307517647743225, val_loss: 0.10230877995491028
+epoch: 60, train_acc: 0.6425526307630298, val_acc: 0.6439525462962963
+epoch: 70, train_loss: 0.10198158770799637, val_loss: 0.10177503526210785
+epoch: 70, train_acc: 0.6461646978575636, val_acc: 0.6472077546296297
+epoch: 80, train_loss: 0.09806124866008759, val_loss: 0.09809142351150513
+epoch: 80, train_acc: 0.6549003193501379, val_acc: 0.6564308449074074
+epoch: 90, train_loss: 0.09745107591152191, val_loss: 0.09793883562088013
+epoch: 90, train_acc: 0.6619849316342665, val_acc: 0.6622178819444444
+epoch: 100, train_loss: 0.09709273278713226, val_loss: 0.09882154315710068
+epoch: 100, train_acc: 0.6553188850649552, val_acc: 0.6555989583333334
+epoch: 110, train_loss: 0.09725150465965271, val_loss: 0.09778803586959839
+epoch: 110, train_acc: 0.6623104827457911, val_acc: 0.6641348379629629
+epoch: 120, train_loss: 0.09679944068193436, val_loss: 0.09907424449920654
+epoch: 120, train_acc: 0.66230273152885, val_acc: 0.6634837962962963
+epoch: 130, train_loss: 0.09715887904167175, val_loss: 0.09824740141630173
+epoch: 130, train_acc: 0.6623414876135554, val_acc: 0.6646412037037037
+epoch: 140, train_loss: 0.096817247569561, val_loss: 0.09793438017368317
+epoch: 140, train_acc: 0.6598998542771215, val_acc: 0.6614583333333334
+epoch: 150, train_loss: 0.09696105867624283, val_loss: 0.09832189977169037
+epoch: 150, train_acc: 0.6618764145970918, val_acc: 0.6636646412037037
+epoch: 160, train_loss: 0.09696127474308014, val_loss: 0.09839270263910294
+epoch: 160, train_acc: 0.663597184758007, val_acc: 0.6636284722222222
+epoch: 170, train_loss: 0.09719936549663544, val_loss: 0.09910765290260315
+epoch: 170, train_acc: 0.660612966235699, val_acc: 0.6619285300925926
+epoch: 180, train_loss: 0.09681446105241776, val_loss: 0.09929074347019196
+epoch: 180, train_acc: 0.6544584999844976, val_acc: 0.6548032407407407
+epoch: 190, train_loss: 0.0969424918293953, val_loss: 0.09905363619327545
+epoch: 190, train_acc: 0.662039190152854, val_acc: 0.6632667824074074
+epoch: 200, train_loss: 0.09714095294475555, val_loss: 0.09907418489456177
+epoch: 200, train_acc: 0.6581170743806778, val_acc: 0.6591796875
+epoch: 210, train_loss: 0.09705800563097, val_loss: 0.10034964233636856
+epoch: 210, train_acc: 0.6596053080333613, val_acc: 0.6607711226851852
+epoch: 220, train_loss: 0.09695859253406525, val_loss: 0.09988068044185638
+epoch: 220, train_acc: 0.6587294205190215, val_acc: 0.6598668981481481
+epoch: 230, train_loss: 0.09670357406139374, val_loss: 0.09817198663949966
+epoch: 230, train_acc: 0.6615818683533314, val_acc: 0.6620732060185185
+epoch: 240, train_loss: 0.09708560258150101, val_loss: 0.09781837463378906
+epoch: 240, train_acc: 0.6612253123740427, val_acc: 0.6619285300925926
+epoch: 250, train_loss: 0.09659237414598465, val_loss: 0.1001768410205841
+epoch: 250, train_acc: 0.6616826341735652, val_acc: 0.6628327546296297
+epoch: 260, train_loss: 0.09681931138038635, val_loss: 0.09763730317354202
+epoch: 260, train_acc: 0.6662403497349084, val_acc: 0.6665219907407407
+epoch: 270, train_loss: 0.09685008227825165, val_loss: 0.09854917228221893
+epoch: 270, train_acc: 0.6614423464483924, val_acc: 0.6623263888888888
+epoch: 280, train_loss: 0.09660748392343521, val_loss: 0.09804457426071167
+epoch: 280, train_acc: 0.6637057017951818, val_acc: 0.6631221064814815
+epoch: 290, train_loss: 0.09688956290483475, val_loss: 0.09863342344760895
+epoch: 290, train_acc: 0.6618376585123864, val_acc: 0.6620370370370371
+epoch: 300, train_loss: 0.09680263698101044, val_loss: 0.0979376882314682
+epoch: 300, train_acc: 0.6594812885623043, val_acc: 0.6598307291666666
+epoch: 310, train_loss: 0.0966748297214508, val_loss: 0.09821777790784836
+epoch: 310, train_acc: 0.6618221560785044, val_acc: 0.6626519097222222
+epoch: 320, train_loss: 0.09689101576805115, val_loss: 0.09942574799060822
+epoch: 320, train_acc: 0.6625120143862586, val_acc: 0.6636646412037037
+epoch: 330, train_loss: 0.09700945764780045, val_loss: 0.10032179206609726
+epoch: 330, train_acc: 0.6631011068737792, val_acc: 0.6638093171296297
+epoch: 340, train_loss: 0.09689013659954071, val_loss: 0.09960387647151947
+epoch: 340, train_acc: 0.6637987163984745, val_acc: 0.6650390625
+epoch: 350, train_loss: 0.09699040651321411, val_loss: 0.0991879552602768
+epoch: 350, train_acc: 0.6630545995721329, val_acc: 0.6624710648148148
+epoch: 360, train_loss: 0.09686235338449478, val_loss: 0.09735877811908722
+epoch: 360, train_acc: 0.6584193718413791, val_acc: 0.6581669560185185
+epoch: 370, train_loss: 0.09722639620304108, val_loss: 0.0991189032793045
+epoch: 370, train_acc: 0.6636746969274177, val_acc: 0.6646773726851852
+epoch: 380, train_loss: 0.09724511951208115, val_loss: 0.09898320585489273
+epoch: 380, train_acc: 0.6608067466592255, val_acc: 0.6595052083333334
+epoch: 390, train_loss: 0.09686034172773361, val_loss: 0.0990271344780922
+epoch: 390, train_acc: 0.6581713328992652, val_acc: 0.6605179398148148
+epoch: 400, train_loss: 0.09682028740644455, val_loss: 0.09851497411727905
+epoch: 400, train_acc: 0.6628995752333117, val_acc: 0.6633752893518519
+epoch: 410, train_loss: 0.09679175913333893, val_loss: 0.09874965250492096
+epoch: 410, train_acc: 0.6623414876135554, val_acc: 0.6623987268518519
+epoch: 420, train_loss: 0.09686528146266937, val_loss: 0.09876633435487747
+epoch: 420, train_acc: 0.6622717266610858, val_acc: 0.6616030092592593
+epoch: 430, train_loss: 0.09716001152992249, val_loss: 0.0984620675444603
+epoch: 430, train_acc: 0.6646513502619912, val_acc: 0.6657986111111112
+epoch: 440, train_loss: 0.0969218984246254, val_loss: 0.09732034802436829
+epoch: 440, train_acc: 0.6631011068737792, val_acc: 0.6627604166666666
+epoch: 450, train_loss: 0.09692494571208954, val_loss: 0.0994810089468956
+epoch: 450, train_acc: 0.663721204229064, val_acc: 0.6645688657407407
+epoch: 460, train_loss: 0.09696398675441742, val_loss: 0.09888863563537598
+epoch: 460, train_acc: 0.6611555514215732, val_acc: 0.6624348958333334
+epoch: 470, train_loss: 0.09700309485197067, val_loss: 0.09944615513086319
+epoch: 470, train_acc: 0.6600238737481785, val_acc: 0.6612774884259259
+epoch: 480, train_loss: 0.09692465513944626, val_loss: 0.09799867868423462
+epoch: 480, train_acc: 0.6649691501565745, val_acc: 0.6630859375
+epoch: 490, train_loss: 0.09688393771648407, val_loss: 0.09835939109325409
+epoch: 490, train_acc: 0.6619461755495613, val_acc: 0.6613136574074074</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="82">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>plot_acc_curves(loss_dict)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>plot_loss_curves(loss_dict)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab4%20Data%20Imputation_files/figure-html/cell-39-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab4%20Data%20Imputation_files/figure-html/cell-39-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>As the above plots show, the final set of hyperparameters improve upon the previous ones, and while the improvement isn’t large, it is still a few percent better in terms of validation accuracy which is nice.</p>
+</section>
+</section>
+<section id="part-4.-testing-12-pt" class="level2">
+<h2 class="anchored" data-anchor-id="part-4.-testing-12-pt">Part 4. Testing [12 pt]</h2>
+<section id="part-a-2-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-2-pt">Part (a) [2 pt]</h3>
+<p>Compute and report the test accuracy.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="197">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>get_accuracy(model, test_loader)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="197">
+<pre><code>0.6646412037037037</code></pre>
+</div>
+</div>
+<p>So the autoencoder scores a 66.5% accuracy on the test set, which is consistent with the accuracy scores for the train and validation sets.</p>
+</section>
+<section id="part-b-4-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-4-pt">Part (b) [4 pt]</h3>
+<p>Based on the test accuracy alone, it is difficult to assess whether our model is actually performing well. We don’t know whether a high accuracy is due to the simplicity of the problem, or if a poor accuracy is a result of the inherent difficulty of the problem.</p>
+<p>It is therefore very important to be able to compare our model to at least one alternative. In particular, we consider a simple <strong>baseline</strong> model that is not very computationally expensive. Our neural network should at least outperform this baseline model. If our network is not much better than the baseline, then it is not doing well.</p>
+<p>For our data imputation problem, consider the following baseline model: to predict a missing feature, the baseline model will look at the <strong>most common value</strong> of the feature in the training set.</p>
+<p>For example, if the feature “marriage” is missing, then this model’s prediction will be the most common value for “marriage” in the training set, which happens to be “Married-civ-spouse”.</p>
+<p>What would be the test accuracy of this baseline model?</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="137">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># loop over columns of data_train </span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="co"># find the most common values per column </span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="co"># impute values for each features </span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="co"># this is a bit weird, but I essentially </span></span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="co"># wrapped the baseline model in a pytorch model </span></span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a><span class="co"># it has better compatibility with the get_accuracy function </span></span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>categorical_features <span class="op">=</span> pd.get_dummies(df_not_missing[catcols]).values.astype(np.int64)</span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a><span class="co"># most common values of one-hot encoded categorical features</span></span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>most_common <span class="op">=</span> [np.argmax(np.bincount(feature)) <span class="cf">for</span> feature <span class="kw">in</span> categorical_features.T] </span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-11"><a href="#cb59-11" aria-hidden="true" tabindex="-1"></a><span class="co"># need a mapping between the actual feature vector that includes contin features </span></span>
+<span id="cb59-12"><a href="#cb59-12" aria-hidden="true" tabindex="-1"></a><span class="co"># gets the categorical feature indexes </span></span>
+<span id="cb59-13"><a href="#cb59-13" aria-hidden="true" tabindex="-1"></a>cat_features_indexes <span class="op">=</span> [(cat_index[feature], cat_index[feature] <span class="op">+</span> <span class="bu">len</span>(cat_values[feature])) <span class="cf">for</span> feature <span class="kw">in</span> catcols]</span>
+<span id="cb59-14"><a href="#cb59-14" aria-hidden="true" tabindex="-1"></a><span class="co"># a mapping from cat_features_indexes to the most_common list</span></span>
+<span id="cb59-15"><a href="#cb59-15" aria-hidden="true" tabindex="-1"></a>index_mapping <span class="op">=</span> {}</span>
+<span id="cb59-16"><a href="#cb59-16" aria-hidden="true" tabindex="-1"></a>curr_ptr <span class="op">=</span> <span class="dv">0</span> </span>
+<span id="cb59-17"><a href="#cb59-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(catcols)):</span>
+<span id="cb59-18"><a href="#cb59-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># has start and finish </span></span>
+<span id="cb59-19"><a href="#cb59-19" aria-hidden="true" tabindex="-1"></a>    feature_indexes <span class="op">=</span> cat_features_indexes[i]</span>
+<span id="cb59-20"><a href="#cb59-20" aria-hidden="true" tabindex="-1"></a>    length <span class="op">=</span> feature_indexes[<span class="dv">1</span>] <span class="op">-</span> feature_indexes[<span class="dv">0</span>]</span>
+<span id="cb59-21"><a href="#cb59-21" aria-hidden="true" tabindex="-1"></a>    most_common_subset <span class="op">=</span> most_common[curr_ptr : curr_ptr <span class="op">+</span> length] </span>
+<span id="cb59-22"><a href="#cb59-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-23"><a href="#cb59-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># store the respective values into the dict    </span></span>
+<span id="cb59-24"><a href="#cb59-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(length): </span>
+<span id="cb59-25"><a href="#cb59-25" aria-hidden="true" tabindex="-1"></a>        index_mapping[j<span class="op">+</span>feature_indexes[<span class="dv">0</span>]] <span class="op">=</span> most_common_subset[j]</span>
+<span id="cb59-26"><a href="#cb59-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-27"><a href="#cb59-27" aria-hidden="true" tabindex="-1"></a>    curr_ptr <span class="op">+=</span> length</span>
+<span id="cb59-28"><a href="#cb59-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-29"><a href="#cb59-29" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BaselineModel(nn.Module): </span>
+<span id="cb59-30"><a href="#cb59-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, index_mapping): </span>
+<span id="cb59-31"><a href="#cb59-31" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(BaselineModel, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb59-32"><a href="#cb59-32" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.most_common <span class="op">=</span> index_mapping</span>
+<span id="cb59-33"><a href="#cb59-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-34"><a href="#cb59-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x, missing_indexes): </span>
+<span id="cb59-35"><a href="#cb59-35" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> []</span>
+<span id="cb59-36"><a href="#cb59-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> row <span class="kw">in</span> x:</span>
+<span id="cb59-37"><a href="#cb59-37" aria-hidden="true" tabindex="-1"></a>            row_preds <span class="op">=</span> []</span>
+<span id="cb59-38"><a href="#cb59-38" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(row)): </span>
+<span id="cb59-39"><a href="#cb59-39" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> i <span class="kw">in</span> <span class="va">self</span>.most_common: </span>
+<span id="cb59-40"><a href="#cb59-40" aria-hidden="true" tabindex="-1"></a>                    pred <span class="op">=</span> <span class="va">self</span>.most_common[i]</span>
+<span id="cb59-41"><a href="#cb59-41" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># if we are supposed to predict these features</span></span>
+<span id="cb59-42"><a href="#cb59-42" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> i <span class="kw">in</span> missing_indexes:</span>
+<span id="cb59-43"><a href="#cb59-43" aria-hidden="true" tabindex="-1"></a>                        row_preds.append(pred)</span>
+<span id="cb59-44"><a href="#cb59-44" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">else</span>: </span>
+<span id="cb59-45"><a href="#cb59-45" aria-hidden="true" tabindex="-1"></a>                        row_preds.append(row[i])</span>
+<span id="cb59-46"><a href="#cb59-46" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span>: </span>
+<span id="cb59-47"><a href="#cb59-47" aria-hidden="true" tabindex="-1"></a>                    row_preds.append(row[i])</span>
+<span id="cb59-48"><a href="#cb59-48" aria-hidden="true" tabindex="-1"></a>            output.append(row_preds)</span>
+<span id="cb59-49"><a href="#cb59-49" aria-hidden="true" tabindex="-1"></a>        output <span class="op">=</span> torch.from_numpy(np.array(output))</span>
+<span id="cb59-50"><a href="#cb59-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> output</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="136">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>baseline_model<span class="op">=</span> BaselineModel(index_mapping)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>get_accuracy(baseline_model, test_loader, <span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="136">
+<pre><code>0.35366030092592593</code></pre>
+</div>
+</div>
+</section>
+<section id="part-c-1-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-1-pt">Part (c) [1 pt]</h3>
+<p>How does your test accuracy from part (a) compared to your basline test accuracy in part (b)?</p>
+<p>The test accuracy from the autoencoder is roughly 1.9 times as good as the test accuracy from the baseline model. In particular, the baseline model achieved approximately 35.4% test set accuracy, while the autoencoder achieved a test accuracy of approximately 66.5%.</p>
+</section>
+<section id="part-d-1-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-d-1-pt">Part (d) [1 pt]</h3>
+<p>Look at the first item in your test data. Do you think it is reasonable for a human to be able to guess this person’s education level based on their other features? Explain.</p>
+<p>Putting the data back into a pandas dataframe to get the column (feature) names, we have:</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="198">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>test_df <span class="op">=</span> pd.DataFrame(data_test, columns<span class="op">=</span><span class="bu">list</span>(data.columns))</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>test_df.iloc[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="198">
+<pre><code>age                                1.936798
+yredu                              1.134739
+capgain                            0.764416
+caploss                           -0.216660
+workhr                            -0.035429
+work_ Federal-gov                  0.000000
+work_ Local-gov                    0.000000
+work_ Private                      1.000000
+work_ Self-emp-inc                 0.000000
+work_ Self-emp-not-inc             0.000000
+work_ State-gov                    0.000000
+work_ Without-pay                  0.000000
+marriage_ Divorced                 1.000000
+marriage_ Married-AF-spouse        0.000000
+marriage_ Married-civ-spouse       0.000000
+marriage_ Married-spouse-absent    0.000000
+marriage_ Never-married            0.000000
+marriage_ Separated                0.000000
+marriage_ Widowed                  0.000000
+occupation_ Adm-clerical           0.000000
+occupation_ Armed-Forces           0.000000
+occupation_ Craft-repair           0.000000
+occupation_ Exec-managerial        0.000000
+occupation_ Farming-fishing        0.000000
+occupation_ Handlers-cleaners      0.000000
+occupation_ Machine-op-inspct      0.000000
+occupation_ Other-service          0.000000
+occupation_ Priv-house-serv        0.000000
+occupation_ Prof-specialty         1.000000
+occupation_ Protective-serv        0.000000
+occupation_ Sales                  0.000000
+occupation_ Tech-support           0.000000
+occupation_ Transport-moving       0.000000
+edu_ 10th                          0.000000
+edu_ 11th                          0.000000
+edu_ 12th                          0.000000
+edu_ 1st-4th                       0.000000
+edu_ 5th-6th                       0.000000
+edu_ 7th-8th                       0.000000
+edu_ 9th                           0.000000
+edu_ Assoc-acdm                    0.000000
+edu_ Assoc-voc                     0.000000
+edu_ Bachelors                     1.000000
+edu_ Doctorate                     0.000000
+edu_ HS-grad                       0.000000
+edu_ Masters                       0.000000
+edu_ Preschool                     0.000000
+edu_ Prof-school                   0.000000
+edu_ Some-college                  0.000000
+relationship_ Husband              0.000000
+relationship_ Not-in-family        1.000000
+relationship_ Other-relative       0.000000
+relationship_ Own-child            0.000000
+relationship_ Unmarried            0.000000
+relationship_ Wife                 0.000000
+sex_ Female                        0.000000
+sex_ Male                          1.000000
+Name: 0, dtype: float32</code></pre>
+</div>
+</div>
+<p>It is somewhat predictable about the level of education that this person has. In particular, the <code>occupation_*</code> features are fairly good proxies of the education level since those columns are quite descriptive of the occupation, and most occupations have certain levels of education required. Further, other features like <code>yredu</code> are also directly related to the education level, e.g., those with a PhD would have a much higher normalized value for <code>yredu</code> than anyone else. While the capital gains and losses are not directly indicative of education level, they can be informative, on some level, of education since learning math/economics could help you in an area that would net you capital gains (e.g., investments). Finally, the <code>work_*</code> features can be informative in certain cases too if the person works in certain sectors, e.g., the government since some of those positions require some level of education, e.g., certain bureaucratic positions requires at least a bachelors.</p>
+</section>
+<section id="part-e-2-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-e-2-pt">Part (e) [2 pt]</h3>
+<p>What is your model’s prediction of this person’s education level, given their other features?</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="218">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>person_of_interest_edu_zerod <span class="op">=</span> torch.from_numpy(zero_out_feature(data_test[:], <span class="st">"edu"</span>)[<span class="dv">0</span>])</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> model(person_of_interest_edu_zerod.to(<span class="st">"cuda:0"</span>)).cpu().detach().numpy()</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>data_frame_cols <span class="op">=</span> <span class="bu">list</span>(data.columns)</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>out_df <span class="op">=</span> pd.DataFrame(out.reshape(<span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>), columns<span class="op">=</span>data_frame_cols)</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>out_df.<span class="bu">filter</span>(regex<span class="op">=</span><span class="st">"edu_*"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="218">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>yredu</th>
+      <th>edu_ 10th</th>
+      <th>edu_ 11th</th>
+      <th>edu_ 12th</th>
+      <th>edu_ 1st-4th</th>
+      <th>edu_ 5th-6th</th>
+      <th>edu_ 7th-8th</th>
+      <th>edu_ 9th</th>
+      <th>edu_ Assoc-acdm</th>
+      <th>edu_ Assoc-voc</th>
+      <th>edu_ Bachelors</th>
+      <th>edu_ Doctorate</th>
+      <th>edu_ HS-grad</th>
+      <th>edu_ Masters</th>
+      <th>edu_ Preschool</th>
+      <th>edu_ Prof-school</th>
+      <th>edu_ Some-college</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.999998</td>
+      <td>0.014633</td>
+      <td>0.014967</td>
+      <td>0.007034</td>
+      <td>0.000408</td>
+      <td>0.001515</td>
+      <td>0.019362</td>
+      <td>0.007476</td>
+      <td>0.047725</td>
+      <td>0.053316</td>
+      <td>0.999989</td>
+      <td>0.026379</td>
+      <td>3.703797e-19</td>
+      <td>0.110362</td>
+      <td>1.199807e-08</td>
+      <td>0.028891</td>
+      <td>0.194092</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="219">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>get_feature(out, <span class="st">"edu"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="219">
+<pre><code>'Bachelors'</code></pre>
+</div>
+</div>
+<p>As we can see the autoencoder output predicts correctly that this person has a Bachelor’s degree since they had the highest score of <code>edu_bachelors</code>. Further, the <code>get_feature</code> function also outputs “Bachelors” provided the model predictions.</p>
+</section>
+<section id="part-f-2-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-f-2-pt">Part (f) [2 pt]</h3>
+<p>What is the baseline model’s prediction of this person’s education level?</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="226">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>person_of_interest_edu_zerod <span class="op">=</span> torch.from_numpy(zero_out_feature(data_test[:], <span class="st">"edu"</span>)[<span class="dv">0</span>]).reshape(<span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>missing_cols <span class="op">=</span> <span class="bu">set</span>(<span class="bu">range</span>(cat_index[<span class="st">"edu"</span>], cat_index[<span class="st">"edu"</span>] <span class="op">+</span> <span class="bu">len</span>(cat_values[<span class="st">"edu"</span>])))</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>out_baseline <span class="op">=</span> baseline_model(person_of_interest_edu_zerod, missing_cols).detach().numpy()</span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>data_frame_cols <span class="op">=</span> <span class="bu">list</span>(data.columns)</span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>out_baseline_df <span class="op">=</span> pd.DataFrame(out_baseline, columns<span class="op">=</span>data_frame_cols)</span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>out_baseline_df.<span class="bu">filter</span>(regex<span class="op">=</span><span class="st">"edu_*"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="226">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>yredu</th>
+      <th>edu_ 10th</th>
+      <th>edu_ 11th</th>
+      <th>edu_ 12th</th>
+      <th>edu_ 1st-4th</th>
+      <th>edu_ 5th-6th</th>
+      <th>edu_ 7th-8th</th>
+      <th>edu_ 9th</th>
+      <th>edu_ Assoc-acdm</th>
+      <th>edu_ Assoc-voc</th>
+      <th>edu_ Bachelors</th>
+      <th>edu_ Doctorate</th>
+      <th>edu_ HS-grad</th>
+      <th>edu_ Masters</th>
+      <th>edu_ Preschool</th>
+      <th>edu_ Prof-school</th>
+      <th>edu_ Some-college</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.134739</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="227">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>get_feature(out_baseline.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="st">"edu"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="227">
+<pre><code>'10th'</code></pre>
+</div>
+</div>
+<p>The baseline model predicts an education level of 10th grade as indicated by the <code>get_feature</code> call shown in the above code cell, which not correct.</p>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
