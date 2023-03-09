@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>lab5-spam-detection</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="Lab5 Spam Detection_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Lab5 Spam Detection_files/libs/quarto-html/quarto.js"></script>
+<script src="Lab5 Spam Detection_files/libs/quarto-html/popper.min.js"></script>
+<script src="Lab5 Spam Detection_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Lab5 Spam Detection_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Lab5 Spam Detection_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Lab5 Spam Detection_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Lab5 Spam Detection_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Lab5 Spam Detection_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Lab5 Spam Detection_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+<section id="lab-5-spam-detection" class="level1">
+<h1>Lab 5: Spam Detection</h1>
+<p>In this assignment, we will build a recurrent neural network to classify a SMS text message as “spam” or “not spam”. In the process, you will</p>
+<ol type="1">
+<li>Clean and process text data for machine learning.</li>
+<li>Understand and implement a character-level recurrent neural network.</li>
+<li>Use torchtext to build recurrent neural network models.</li>
+<li>Understand batching for a recurrent neural network, and use torchtext to implement RNN batching.</li>
+</ol>
+<section id="what-to-submit" class="level3">
+<h3 class="anchored" data-anchor-id="what-to-submit">What to submit</h3>
+<p>Submit a PDF file containing all your code, outputs, and write-up. You can produce a PDF of your Google Colab file by going to File &gt; Print and then save as PDF. The Colab instructions have more information.</p>
+<p>Do not submit any other files produced by your code.</p>
+<p>Include a link to your colab file in your submission.</p>
+</section>
+<section id="colab-link" class="level2">
+<h2 class="anchored" data-anchor-id="colab-link">Colab Link</h2>
+<p>Include a link to your Colab file here. If you would like the TA to look at your Colab file in case your solutions are cut off, <strong>please make sure that your Colab file is publicly accessible at the time of submission</strong>.</p>
+<p>Colab Link: <a href="https://colab.research.google.com/github/GreatArcStudios/APS360/blob/master/Lab%205/Lab5%20Spam%20Detection.ipynb">https://colab.research.google.com/github/GreatArcStudios/APS360/blob/master/Lab%205/Lab5%20Spam%20Detection.ipynb</a></p>
+<p>As we are using the older version of the torchtext, please run the following to downgrade the torchtext version:</p>
+<div class="cell" data-execution_count="166">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install <span class="op">-</span>U torch<span class="op">==</span><span class="fl">1.8.0</span><span class="op">+</span>cu111 torchtext<span class="op">==</span><span class="fl">0.9.0</span> <span class="op">-</span>f https:<span class="op">//</span>download.pytorch.org<span class="op">/</span>whl<span class="op">/</span>torch_stable.html</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Looking in links: https://download.pytorch.org/whl/torch_stable.html
+Requirement already satisfied: torch==1.8.0+cu111 in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (1.8.0+cu111)
+Requirement already satisfied: torchtext==0.9.0 in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (0.9.0)
+Requirement already satisfied: typing-extensions in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (from torch==1.8.0+cu111) (4.5.0)
+Requirement already satisfied: numpy in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (from torch==1.8.0+cu111) (1.24.2)
+Requirement already satisfied: requests in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (from torchtext==0.9.0) (2.28.2)
+Requirement already satisfied: tqdm in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (from torchtext==0.9.0) (4.65.0)
+Requirement already satisfied: urllib3&lt;1.27,&gt;=1.21.1 in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (from requests-&gt;torchtext==0.9.0) (1.26.14)
+Requirement already satisfied: certifi&gt;=2017.4.17 in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (from requests-&gt;torchtext==0.9.0) (2022.12.7)
+Requirement already satisfied: idna&lt;4,&gt;=2.5 in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (from requests-&gt;torchtext==0.9.0) (3.4)
+Requirement already satisfied: charset-normalizer&lt;4,&gt;=2 in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (from requests-&gt;torchtext==0.9.0) (3.1.0)
+Requirement already satisfied: colorama in c:\programdata\anaconda3\envs\pytorch-torchtext\lib\site-packages (from tqdm-&gt;torchtext==0.9.0) (0.4.6)</code></pre>
+</div>
+</div>
+<p>If you are interested to use the most recent version if torchtext, you can look at the following document to see how to convert the legacy version to the new version: https://colab.research.google.com/github/pytorch/text/blob/master/examples/legacy_tutorial/migration_tutorial.ipynb</p>
+<div class="cell" data-tags="[]" data-execution_count="167">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.optim <span class="im">as</span> optim</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torchtext</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchinfo <span class="im">import</span> summary </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(torchtext.__version__)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.9.0</code></pre>
+</div>
+</div>
+</section>
+<section id="part-1.-data-cleaning-15-pt" class="level2">
+<h2 class="anchored" data-anchor-id="part-1.-data-cleaning-15-pt">Part 1. Data Cleaning [15 pt]</h2>
+<p>We will be using the “SMS Spam Collection Data Set” available at http://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection</p>
+<p>There is a link to download the “Data Folder” at the very top of the webpage. Download the zip file, unzip it, and upload the file <code>SMSSpamCollection</code> to Colab.</p>
+<section id="part-a-2-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-2-pt">Part (a) [2 pt]</h3>
+<p>Open up the file in Python, and print out one example of a spam SMS, and one example of a non-spam SMS.</p>
+<p>What is the label value for a spam message, and what is the label value for a non-spam message?</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="168">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> line <span class="kw">in</span> <span class="bu">open</span>(<span class="st">'SMSSpamCollection'</span>):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">&lt;</span> <span class="dv">5</span>:  </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        line <span class="op">=</span> line.split(<span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(line)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    i<span class="op">+=</span><span class="dv">1</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>['ham', 'Go until jurong point, crazy.. Available only in bugis n great world la e buffet... Cine there got amore wat...\n']
+['ham', 'Ok lar... Joking wif u oni...\n']
+['spam', "Free entry in 2 a wkly comp to win FA Cup final tkts 21st May 2005. Text FA to 87121 to receive entry question(std txt rate)T&amp;C's apply 08452810075over18's\n"]
+['ham', 'U dun say so early hor... U c already then say...\n']
+['ham', "Nah I don't think he goes to usf, he lives around here though\n"]</code></pre>
+</div>
+</div>
+<p>A spam message has the label <code>spam</code>, and the non-spam message has a label <code>ham</code>.</p>
+</section>
+<section id="part-b-1-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-1-pt">Part (b) [1 pt]</h3>
+<p>How many spam messages are there in the data set? How many non-spam messages are there in the data set?</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="169">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>spam_count, ham_count <span class="op">=</span> <span class="dv">0</span>, <span class="dv">0</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> line <span class="kw">in</span> <span class="bu">open</span>(<span class="st">"SMSSpamCollection"</span>):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    line <span class="op">=</span> line.split(<span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> line[<span class="dv">0</span>] <span class="op">==</span> <span class="st">"spam"</span>:</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        spam_count <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        ham_count <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Spam Count: </span><span class="sc">{</span>spam_count<span class="sc">}</span><span class="ss"> | Ham Count </span><span class="sc">{</span>ham_count<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Spam Count: 747 | Ham Count 4827</code></pre>
+</div>
+</div>
+</section>
+<section id="part-c-4-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-4-pt">Part (c) [4 pt]</h3>
+<p>We will be using the package <code>torchtext</code> to load, process, and batch the data. A tutorial to torchtext is available below. This tutorial uses the same Sentiment140 data set that we explored during lecture.</p>
+<p>https://medium.com/<span class="citation" data-cites="sonicboom8/sentiment-analysis-torchtext-55fb57b1fab8">@sonicboom8/sentiment-analysis-torchtext-55fb57b1fab8</span></p>
+<p>Unlike what we did during lecture, we will be building a <strong>character level RNN</strong>. That is, we will treat each <strong>character</strong> as a token in our sequence, rather than each <strong>word</strong>.</p>
+<p>Identify two advantage and two disadvantage of modelling SMS text messages as a sequence of characters rather than a sequence of words.</p>
+<p>Advantages: 1. If we model the character-level relationship we could potentially induce more diversity into text generation since we learn a distribution over characters. This means the model does not just have to produce outputs contained in the vocabulary, e.g., one full word in the vocabulary/corpus at a time. 2. Since there are only 26 characters in the English alphabet (and similar amounts if we consider the Latin alphabet more broadly), the model only has to learn a much smaller dimension corpus/vocabulary than a word level-model, which would need to learn many words in order to produce sensible outputs.</p>
+<p>Disadvantages: 1. If we predict the most likely next character, we can get non-existent words as outputs. We do not guarantee that outputs have to be valid words since we don’t actually learn that. 2. We may have to increase the sentence/output length since words are comprised of many characters, so to get a meaningfully long sentence (instead of something like “the sky is blue”) we would need to increase the number of output tokens to account for longer words and more words.</p>
+</section>
+<section id="part-d-1-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-d-1-pt">Part (d) [1 pt]</h3>
+<p>We will be loading our data set using <code>torchtext.data.TabularDataset</code>. The constructor will read directly from the <code>SMSSpamCollection</code> file.</p>
+<p>For the data file to be read successfuly, we need to specify the <strong>fields</strong> (columns) in the file. In our case, the dataset has two fields:</p>
+<ul>
+<li>a text field containing the sms messages,</li>
+<li>a label field which will be converted into a binary label.</li>
+</ul>
+<p>Split the dataset into <code>train</code>, <code>valid</code>, and <code>test</code>. Use a 60-20-20 split. You may find this torchtext API page helpful: https://torchtext.readthedocs.io/en/latest/data.html#dataset</p>
+<p>Hint: There is a <code>Dataset</code> method that can perform the random split for you.</p>
+<div class="cell" data-execution_count="228">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>text_field <span class="op">=</span> torchtext.legacy.data.Field(batch_first<span class="op">=</span><span class="va">True</span>, </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                                         tokenize<span class="op">=</span><span class="bu">list</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>label_field <span class="op">=</span> torchtext.legacy.data.LabelField(batch_first<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                                               preprocessing<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">float</span>(x <span class="op">==</span> <span class="st">"spam"</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                                               dtype<span class="op">=</span>torch.<span class="bu">float</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>spam_ham_dataset <span class="op">=</span> torchtext.legacy.data.TabularDataset(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    path<span class="op">=</span><span class="st">"SMSSpamCollection"</span>, <span class="bu">format</span><span class="op">=</span><span class="st">"tsv"</span>, fields<span class="op">=</span>[(<span class="st">"label"</span>, label_field), (<span class="st">"sms"</span>, text_field)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="268">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>train, val, test <span class="op">=</span> spam_ham_dataset.split(split_ratio<span class="op">=</span>[<span class="fl">0.6</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="267">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#[e.label for e in val.examples]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="part-e-2-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-e-2-pt">Part (e) [2 pt]</h3>
+<p>You saw in part (b) that there are many more non-spam messages than spam messages. This <strong>imbalance</strong> in our training data will be problematic for training. We can fix this disparity by duplicating spam messages in the training set, so that the training set is roughly <strong>balanced</strong>.</p>
+<p>Explain why having a balanced training set is helpful for training our neural network.</p>
+<p>Note: if you are not sure, try removing the below code and train your mode.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="269">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save the original training examples</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>old_train_examples <span class="op">=</span> train.examples</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># get all the spam messages in `train`</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>train_spam <span class="op">=</span> []</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> item <span class="kw">in</span> train.examples:</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> item.label <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        train_spam.append(item)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># duplicate each spam message 6 more times</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>train.examples <span class="op">=</span> old_train_examples <span class="op">+</span> train_spam <span class="op">*</span> <span class="dv">6</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In this case, having a big data imbalance means that the model can achieve high accuracy simply by predicting (classifying) everything as not spam, which is what minimizing the loss will help us achieve (minimizing loss helps maximize accuracy). So if we suppose that the model achieved high accuracy by classifying most examples as not spam then, we could expect to see a high false negative rate, which could be problematic if spam messages have harmful content like phishing links.</p>
+<div class="cell" data-execution_count="270">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sanity check</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>([e <span class="cf">for</span> e <span class="kw">in</span> train.examples <span class="cf">if</span> e.label<span class="op">==</span><span class="dv">1</span>]), <span class="bu">len</span>([e <span class="cf">for</span> e <span class="kw">in</span> train.examples <span class="cf">if</span> e.label<span class="op">==</span><span class="dv">0</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>3150 2893</code></pre>
+</div>
+</div>
+</section>
+<section id="part-f-1-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-f-1-pt">Part (f) [1 pt]</h3>
+<p>We need to build the vocabulary on the training data by running the below code. This finds all the possible character tokens in the training set.</p>
+<p>Explain what the variables <code>text_field.vocab.stoi</code> and <code>text_field.vocab.itos</code> represent.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="271">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>text_field.build_vocab(train)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>label_field.build_vocab(train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#text_field.vocab.stoi</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#text_field.vocab.itos</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Going off of the official <code>torchtext</code> <a href="https://torchtext.readthedocs.io/en/latest/vocab.html">docs</a>, <code>text_field.vocab.stoi</code> gives us “a collections.defaultdict instance mapping token strings to numerical identifiers”, while <code>text_field.vocab.itos</code> gives us “a list of token strings indexed by their numerical identifiers”. The <code>stoi</code> attribute then gives us an easy way retrieve the index of a work in the vocab, e.g., <code>&lt;unk&gt;</code> has an index of 0. On the other side, <code>itos</code> is a list of the tokens at their respective index, e.g., <code>&lt;unk&gt;</code> is <em>at</em> index 0 in the list, which matches with its value in the <code>stoi</code> dictionary.</p>
+</section>
+<section id="part-g-2-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-g-2-pt">Part (g) [2 pt]</h3>
+<p>The tokens <code>&lt;unk&gt;</code> and <code>&lt;pad&gt;</code> were not in our SMS text messages. What do these two values represent?</p>
+<p><code>&lt;unk&gt;</code> and <code>&lt;pad&gt;</code> tokens correspond to the unknown word w.r.t the vocab (e.g., a unique and very uncommon username) and a meaningless padding token to make shorter examples the same length respectively. The latter can help with parallelization.</p>
+</section>
+<section id="part-h-2-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-h-2-pt">Part (h) [2 pt]</h3>
+<p>Since text sequences are of variable length, <code>torchtext</code> provides a <code>BucketIterator</code> data loader, which batches similar length sequences together. The iterator also provides functionalities to pad sequences automatically.</p>
+<p>Take a look at 10 batches in <code>train_iter</code>. What is the maximum length of the input sequence in each batch? How many <code>&lt;pad&gt;</code> tokens are used in each of the 10 batches?</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="273">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>train_iter <span class="op">=</span> torchtext.legacy.data.BucketIterator(train,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                                           batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                                           sort_key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">len</span>(x.sms), <span class="co"># to minimize padding</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                                           sort_within_batch<span class="op">=</span><span class="va">True</span>,        <span class="co"># sort within each batch</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                                           repeat<span class="op">=</span><span class="va">False</span>)                  <span class="co"># repeat the iterator for many epochs</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="276">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>batch_count <span class="op">=</span> <span class="dv">0</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>max_lengths <span class="op">=</span> []</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>pad_counts <span class="op">=</span> []</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>dummy_example <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>dummy_label <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch <span class="kw">in</span> train_iter:</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> batch_count <span class="op">&lt;</span> <span class="dv">10</span>: </span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># print(len(batch))</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># print(batch.sms)</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># print(batch.label)</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>        max_length, pad_count <span class="op">=</span> <span class="dv">0</span>, <span class="dv">0</span> </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        pad_idx <span class="op">=</span> text_field.vocab.stoi[<span class="st">"&lt;pad&gt;"</span>]</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> example <span class="kw">in</span> batch.sms:</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>            max_length <span class="op">=</span> <span class="bu">max</span>(<span class="bu">len</span>(example), max_length)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>            pad_count <span class="op">+=</span> torch.count_nonzero(example <span class="op">==</span> pad_idx)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>        max_lengths.append(max_length)</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>        pad_counts.append(<span class="bu">int</span>(pad_count))</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>: </span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>        ident <span class="op">=</span> torch.eye(<span class="bu">len</span>(text_field.vocab.itos))</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(batch.sms.shape, batch.label.shape)</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>        dummy_example <span class="op">=</span> ident[batch.sms]</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>        dummy_label <span class="op">=</span> batch.label</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(batch.sms[<span class="dv">0</span>])</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    batch_count <span class="op">+=</span> <span class="dv">1</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>torch.Size([32, 97]) torch.Size([32])
+tensor([48,  3, 10, 10,  6, 22,  3,  2, 24,  8,  4, 18,  2, 16,  2, 37,  2,  6,
+        18,  2,  6,  5,  2, 27,  8, 12,  8,  4,  2, 53,  4, 10, 21,  9,  5,  6,
+        11,  2,  4,  7,  2,  3, 42,  5, 16,  2, 57,  4, 12,  2, 17,  6,  7,  2,
+        21, 13,  4,  7,  3,  2, 18,  3,  2, 13,  3,  8,  3, 16,  2,  6, 10,  2,
+        37,  2, 13,  6, 30,  3,  2,  6,  2, 21, 13,  4,  7,  3,  2, 25, 19,  2,
+        18, 19,  2, 10,  9, 15,  3])</code></pre>
+</div>
+</div>
+<p>We can see below that the counts of the max lengths of the training examples in each batch and their respective pad counts. We can see that each batch varying maximum lengths ranging from well under 100 to well over 100. The pad counts varied from 0 to over 100 over various different batches (runs of the above for loop).</p>
+<div class="cell" data-execution_count="275">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(max_lengths, pad_counts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[48, 124, 101, 32, 53, 28, 152, 161, 35, 30] [38, 68, 77, 36, 44, 17, 22, 18, 13, 8]</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="237">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>dummy_example.shape </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="237">
+<pre><code>torch.Size([32, 158, 117])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="238">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>dummy_label</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="238">
+<pre><code>tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0.,
+        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="part-2.-model-building-8-pt" class="level2">
+<h2 class="anchored" data-anchor-id="part-2.-model-building-8-pt">Part 2. Model Building [8 pt]</h2>
+<p>Build a recurrent neural network model, using an architecture of your choosing. Use the one-hot embedding of each character as input to your recurrent network. Use one or more fully-connected layers to make the prediction based on your recurrent network output.</p>
+<p>Instead of using the RNN output value for the final token, another often used strategy is to max-pool over the entire output array. That is, instead of calling something like:</p>
+<pre><code>out, _ = self.rnn(x)
+self.fc(out[:, -1, :])</code></pre>
+<p>where <code>self.rnn</code> is an <code>nn.RNN</code>, <code>nn.GRU</code>, or <code>nn.LSTM</code> module, and <code>self.fc</code> is a fully-connected layer, we use:</p>
+<pre><code>out, _ = self.rnn(x)
+self.fc(torch.max(out, dim=1)[0])</code></pre>
+<p>This works reasonably in practice. An even better alternative is to concatenate the max-pooling and average-pooling of the RNN outputs:</p>
+<pre><code>out, _ = self.rnn(x)
+out = torch.cat([torch.max(out, dim=1)[0], 
+                 torch.mean(out, dim=1)], dim=1)
+self.fc(out)</code></pre>
+<p>We encourage you to try out all these options. The way you pool the RNN outputs is one of the “hyperparameters” that you can choose to tune later on.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="239">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># You might find this code helpful for obtaining</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co"># PyTorch one-hot vectors.</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>ident <span class="op">=</span> torch.eye(<span class="dv">10</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(ident[<span class="dv">0</span>]) <span class="co"># one-hot vector</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(ident[<span class="dv">1</span>]) <span class="co"># one-hot vector</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch   .tensor([[<span class="dv">1</span>, <span class="dv">2</span>], [<span class="dv">3</span>, <span class="dv">4</span>]])</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(ident[x]) <span class="co"># one-hot vectors</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tensor([1., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+tensor([0., 1., 0., 0., 0., 0., 0., 0., 0., 0.])
+tensor([[[0., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+         [0., 0., 1., 0., 0., 0., 0., 0., 0., 0.]],
+
+        [[0., 0., 0., 1., 0., 0., 0., 0., 0., 0.],
+         [0., 0., 0., 0., 1., 0., 0., 0., 0., 0.]]])</code></pre>
+</div>
+</div>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="293">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SimpleRNN(nn.Module):</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, corpus_size, hidden_size, n_layers<span class="op">=</span><span class="dv">5</span>):</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.hidden_size <span class="op">=</span> hidden_size</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.rnn <span class="op">=</span> nn.LSTM(input_size<span class="op">=</span>corpus_size,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>                          hidden_size<span class="op">=</span>hidden_size, </span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>                          num_layers<span class="op">=</span>n_layers,</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>                          batch_first<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.classification_head <span class="op">=</span> nn.Sequential(</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">2</span><span class="op">*</span>hidden_size, <span class="dv">4</span><span class="op">*</span>hidden_size),</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>            nn.GELU(),</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">4</span><span class="op">*</span>hidden_size, hidden_size),</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>            nn.GELU(),</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.residual <span class="op">=</span> nn.Sequential(</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>            nn.Linear(<span class="dv">2</span><span class="op">*</span>hidden_size, hidden_size)</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fc_out <span class="op">=</span> nn.Sequential(</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>            nn.Linear(hidden_size, hidden_size),</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>            nn.GELU(),</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>            nn.Linear(hidden_size, <span class="dv">1</span>)</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>        )  <span class="co"># either spam or not</span></span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.simple_out <span class="op">=</span> nn.Linear(hidden_size, <span class="dv">1</span>)</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>        rnn_out, _ <span class="op">=</span> <span class="va">self</span>.rnn(x)</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>        max_pool <span class="op">=</span> torch.<span class="bu">max</span>(rnn_out, dim<span class="op">=</span><span class="dv">1</span>)[<span class="dv">0</span>]</span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>        avg_pool <span class="op">=</span> torch.mean(rnn_out, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>        rnn_out <span class="op">=</span> torch.cat([max_pool, avg_pool], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>        head_out <span class="op">=</span> <span class="va">self</span>.classification_head(rnn_out)</span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>        residual_out <span class="op">=</span> <span class="va">self</span>.residual(rnn_out)</span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> head_out <span class="op">+</span> residual_out</span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.fc_out(out)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="part-3.-training-16-pt" class="level2">
+<h2 class="anchored" data-anchor-id="part-3.-training-16-pt">Part 3. Training [16 pt]</h2>
+<section id="part-a-4-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-4-pt">Part (a) [4 pt]</h3>
+<p>Complete the <code>get_accuracy</code> function, which will compute the accuracy (rate) of your model across a dataset (e.g.&nbsp;validation set). You may modify <code>torchtext.data.BucketIterator</code> to make your computation faster.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="300">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_accuracy(model, data, corpus_size, device):</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Compute the accuracy of the `model` across a dataset `data`</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Example usage:</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="co">    &gt;&gt;&gt; model = MyRNN() # to be defined</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co">    &gt;&gt;&gt; get_accuracy(model, valid, corpus_size, device) # the variable `valid` is from above</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>        num_correct, num_total <span class="op">=</span> <span class="dv">0</span>, <span class="dv">0</span> </span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>        ident <span class="op">=</span> torch.eye(corpus_size).to(device)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> batch <span class="kw">in</span> data: </span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>            label <span class="op">=</span> batch.label.to(device)</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>            sms <span class="op">=</span> batch.sms</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>            data_processed <span class="op">=</span> ident[sms]</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>            pred <span class="op">=</span> model(data_processed)</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>            pred <span class="op">=</span> nn.functional.sigmoid(pred).reshape(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>            pred <span class="op">=</span> (pred<span class="op">&gt;=</span><span class="fl">0.5</span>).<span class="bu">float</span>().to(device)</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>            num_correct <span class="op">+=</span> torch.<span class="bu">sum</span>(pred <span class="op">==</span> label)</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>            num_total <span class="op">+=</span> <span class="bu">len</span>(pred)</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> num_correct<span class="op">/</span>num_total</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="part-b-4-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-4-pt">Part (b) [4 pt]</h3>
+<p>Train your model. Plot the training curve of your final model. Your training curve should have the training/validation loss and accuracy plotted periodically.</p>
+<p>Note: Not all of your batches will have the same batch size. In particular, if your training set does not divide evenly by your batch size, there will be a batch that is smaller than the rest.</p>
+<div class="cell" data-execution_count="353">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt </span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_acc_curves(loss_dict):</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"</span><span class="sc">{</span>loss_dict[<span class="st">'config'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    plt.plot([value <span class="cf">for</span> value <span class="kw">in</span> loss_dict[<span class="st">"epochs"</span>]], [value.cpu().data.numpy() <span class="cf">for</span> value <span class="kw">in</span>  loss_dict[<span class="st">"train_acc"</span>]], label<span class="op">=</span><span class="st">"Train Accuracy"</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    plt.plot([value <span class="cf">for</span> value <span class="kw">in</span> loss_dict[<span class="st">"epochs"</span>]], [value.cpu().data.numpy() <span class="cf">for</span> value <span class="kw">in</span>  loss_dict[<span class="st">"val_acc"</span>]], label<span class="op">=</span><span class="st">"Validation Accuracy"</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(loss_dict[<span class="st">'epochs'</span>])<span class="sc">}</span><span class="ss"> Epochs"</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"Accuracy"</span>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    plt.legend(loc<span class="op">=</span><span class="st">'best'</span>)</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_loss_curves(loss_dict):</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"</span><span class="sc">{</span>loss_dict[<span class="st">'config'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>    plt.plot([value <span class="cf">for</span> value <span class="kw">in</span> loss_dict[<span class="st">"epochs"</span>]], [value.cpu().data.numpy() <span class="cf">for</span> value <span class="kw">in</span> loss_dict[<span class="st">"train_loss"</span>]], label<span class="op">=</span><span class="st">"Train Loss"</span>)</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>    plt.plot([value <span class="cf">for</span> value <span class="kw">in</span> loss_dict[<span class="st">"epochs"</span>]], [value.cpu().data.numpy() <span class="cf">for</span> value <span class="kw">in</span> loss_dict[<span class="st">"val_loss"</span>]], label<span class="op">=</span><span class="st">"Validation Loss"</span>)</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(loss_dict[<span class="st">'epochs'</span>])<span class="sc">}</span><span class="ss"> Epochs"</span>)</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>    plt.legend(loc<span class="op">=</span><span class="st">'best'</span>)</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="307">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_loop(model, train_loader, valid_loader, corpus_size<span class="op">=</span><span class="dv">32</span>, num_epochs<span class="op">=</span><span class="dv">5</span>, learning_rate<span class="op">=</span><span class="fl">1e-4</span>, val_epochs<span class="op">=</span><span class="dv">10</span>, weight_decay<span class="op">=</span><span class="fl">1e-6</span>, acc_func<span class="op">=</span><span class="va">None</span>, use_cuda<span class="op">=</span><span class="va">True</span>, model_path_prefix<span class="op">=</span><span class="st">"./models/"</span>, plot_acc<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    torch.manual_seed(<span class="dv">100</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># determine if CUDA is available and set Tensor core flags</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> use_cuda <span class="kw">and</span> torch.cuda.is_available():</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        dev <span class="op">=</span> <span class="st">"cuda:0"</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>        torch.backends.cuda.matmul.allow_tf32 <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>        torch.backends.cudnn.allow_tf32 <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"CUDA unavailable, training on CPU"</span>)</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        dev <span class="op">=</span> <span class="st">"CPU"</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> torch.device(dev)</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> model.to(device)</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>    best_val_loss <span class="op">=</span> <span class="bu">float</span>(<span class="st">'inf'</span>)</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    loss_dict <span class="op">=</span> {<span class="st">"config"</span>: <span class="ss">f"Epochs: </span><span class="sc">{</span>num_epochs<span class="sc">}</span><span class="ss">, Lr: </span><span class="sc">{</span>learning_rate<span class="sc">}</span><span class="ss">"</span>,</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"epochs"</span>: [],</span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"train_loss"</span>: [], <span class="st">"val_loss"</span>: [],</span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"train_acc"</span>: [], <span class="st">"val_acc"</span>: []}</span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>    criterion <span class="op">=</span> nn.BCEWithLogitsLoss()</span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>    optimizer <span class="op">=</span> torch.optim.Adam(</span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>        model.parameters(), lr<span class="op">=</span>learning_rate, weight_decay<span class="op">=</span>weight_decay)</span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>    ident <span class="op">=</span> torch.eye(corpus_size).to(device)</span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(num_epochs):</span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>        train_loss <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a>        batches <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> data <span class="kw">in</span> train_loader:</span>
+<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a>            sms, label <span class="op">=</span> data.sms, data.label.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>).to(device)</span>
+<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a>            data_processed <span class="op">=</span> ident[sms]</span>
+<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a>            <span class="co"># use Nvidia AMP for tensor cores speed up.</span></span>
+<span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> torch.cuda.amp.autocast():</span>
+<span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a>                pred <span class="op">=</span> model(data_processed)</span>
+<span id="cb35-37"><a href="#cb35-37" aria-hidden="true" tabindex="-1"></a>                loss <span class="op">=</span> criterion(pred, label)</span>
+<span id="cb35-38"><a href="#cb35-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-39"><a href="#cb35-39" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb35-40"><a href="#cb35-40" aria-hidden="true" tabindex="-1"></a>            optimizer.step()</span>
+<span id="cb35-41"><a href="#cb35-41" aria-hidden="true" tabindex="-1"></a>            optimizer.zero_grad()</span>
+<span id="cb35-42"><a href="#cb35-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-43"><a href="#cb35-43" aria-hidden="true" tabindex="-1"></a>            train_loss <span class="op">+=</span> loss</span>
+<span id="cb35-44"><a href="#cb35-44" aria-hidden="true" tabindex="-1"></a>            batches <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb35-45"><a href="#cb35-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-46"><a href="#cb35-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-47"><a href="#cb35-47" aria-hidden="true" tabindex="-1"></a>        train_loss <span class="op">/=</span> batches</span>
+<span id="cb35-48"><a href="#cb35-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-49"><a href="#cb35-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> epoch <span class="op">%</span> val_epochs <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb35-50"><a href="#cb35-50" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb35-51"><a href="#cb35-51" aria-hidden="true" tabindex="-1"></a>                val_acc <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb35-52"><a href="#cb35-52" aria-hidden="true" tabindex="-1"></a>                train_acc <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb35-53"><a href="#cb35-53" aria-hidden="true" tabindex="-1"></a>                val_loss <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb35-54"><a href="#cb35-54" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> data <span class="kw">in</span> valid_loader:</span>
+<span id="cb35-55"><a href="#cb35-55" aria-hidden="true" tabindex="-1"></a>                    sms, label <span class="op">=</span> data.sms, data.label.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>).to(device)</span>
+<span id="cb35-56"><a href="#cb35-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-57"><a href="#cb35-57" aria-hidden="true" tabindex="-1"></a>                    data_processed <span class="op">=</span> ident[sms]</span>
+<span id="cb35-58"><a href="#cb35-58" aria-hidden="true" tabindex="-1"></a>                    preds <span class="op">=</span> model(data_processed)</span>
+<span id="cb35-59"><a href="#cb35-59" aria-hidden="true" tabindex="-1"></a>                    val_loss <span class="op">+=</span> criterion(preds, label)</span>
+<span id="cb35-60"><a href="#cb35-60" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(</span>
+<span id="cb35-61"><a href="#cb35-61" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"epoch: </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">, train_loss: </span><span class="sc">{</span>train_loss<span class="sc">}</span><span class="ss">, val_loss: </span><span class="sc">{</span>val_loss<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb35-62"><a href="#cb35-62" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> plot_acc:</span>
+<span id="cb35-63"><a href="#cb35-63" aria-hidden="true" tabindex="-1"></a>                    val_acc <span class="op">=</span> acc_func(model, valid_loader,</span>
+<span id="cb35-64"><a href="#cb35-64" aria-hidden="true" tabindex="-1"></a>                                       corpus_size, device)</span>
+<span id="cb35-65"><a href="#cb35-65" aria-hidden="true" tabindex="-1"></a>                    train_acc <span class="op">=</span> acc_func(</span>
+<span id="cb35-66"><a href="#cb35-66" aria-hidden="true" tabindex="-1"></a>                        model, train_loader, corpus_size, device)</span>
+<span id="cb35-67"><a href="#cb35-67" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">print</span>(</span>
+<span id="cb35-68"><a href="#cb35-68" aria-hidden="true" tabindex="-1"></a>                        <span class="ss">f"epoch: </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">, train_acc: </span><span class="sc">{</span>train_acc<span class="sc">}</span><span class="ss">, val_acc: </span><span class="sc">{</span>val_acc<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb35-69"><a href="#cb35-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-70"><a href="#cb35-70" aria-hidden="true" tabindex="-1"></a>                loss_dict[<span class="st">"train_loss"</span>].append(train_loss)</span>
+<span id="cb35-71"><a href="#cb35-71" aria-hidden="true" tabindex="-1"></a>                loss_dict[<span class="st">"val_loss"</span>].append(val_loss)</span>
+<span id="cb35-72"><a href="#cb35-72" aria-hidden="true" tabindex="-1"></a>                loss_dict[<span class="st">"train_acc"</span>].append(train_acc)</span>
+<span id="cb35-73"><a href="#cb35-73" aria-hidden="true" tabindex="-1"></a>                loss_dict[<span class="st">"val_acc"</span>].append(val_acc)</span>
+<span id="cb35-74"><a href="#cb35-74" aria-hidden="true" tabindex="-1"></a>                loss_dict[<span class="st">"epochs"</span>].append(epoch)</span>
+<span id="cb35-75"><a href="#cb35-75" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb35-76"><a href="#cb35-76" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> val_loss <span class="op">&lt;</span> best_val_loss:</span>
+<span id="cb35-77"><a href="#cb35-77" aria-hidden="true" tabindex="-1"></a>                    best_val_loss <span class="op">=</span> val_loss</span>
+<span id="cb35-78"><a href="#cb35-78" aria-hidden="true" tabindex="-1"></a>                    torch.save(model.state_dict(), model_path_prefix <span class="op">+</span></span>
+<span id="cb35-79"><a href="#cb35-79" aria-hidden="true" tabindex="-1"></a>                               <span class="ss">f"valloss-</span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(best_val_loss.cpu().numpy(), decimals<span class="op">=</span><span class="dv">4</span>)<span class="sc">}</span><span class="ss">-lr_</span><span class="sc">{</span>learning_rate<span class="sc">}</span><span class="ss">-epoch_num_</span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">.mdlckpt"</span>)</span>
+<span id="cb35-80"><a href="#cb35-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-81"><a href="#cb35-81" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> model, loss_dict</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="325">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>train_iter <span class="op">=</span> torchtext.legacy.data.BucketIterator(train,</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                                           batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>                                           sort_key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">len</span>(x.sms), <span class="co"># to minimize padding</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>                                           sort_within_batch<span class="op">=</span><span class="va">True</span>,        <span class="co"># sort within each batch</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>                                           repeat<span class="op">=</span><span class="va">False</span>)                  <span class="co"># repeat the iterator for many epochs</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>val_iter <span class="op">=</span> torchtext.legacy.data.BucketIterator(val,</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>                                           batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>                                           sort_key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">len</span>(x.sms), <span class="co"># to minimize padding</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>                                           sort_within_batch<span class="op">=</span><span class="va">True</span>,        <span class="co"># sort within each batch</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>                                           repeat<span class="op">=</span><span class="va">False</span>)                  <span class="co"># repeat the iterator for many epochs</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>test_iter <span class="op">=</span> torchtext.legacy.data.BucketIterator(test,</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>                                           batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>                                           sort_key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">len</span>(x.sms), <span class="co"># to minimize padding</span></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>                                           sort_within_batch<span class="op">=</span><span class="va">True</span>,        <span class="co"># sort within each batch</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>                                           repeat<span class="op">=</span><span class="va">False</span>)                  <span class="co"># repeat the iterator for many epochs</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="308">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>SpamClassifier <span class="op">=</span> SimpleRNN(corpus_size <span class="op">=</span> <span class="bu">len</span>(text_field.vocab.itos), hidden_size<span class="op">=</span><span class="dv">200</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>model, loss_dict <span class="op">=</span> train_loop(SpamClassifier, train_iter, val_iter, <span class="bu">len</span>(text_field.vocab.itos), num_epochs<span class="op">=</span><span class="dv">50</span>, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>epoch: 0, train_loss: 0.6935163140296936, val_loss: 24.860689163208008
+epoch: 0, train_acc: 0.5212643146514893, val_acc: 0.13273541629314423
+epoch: 10, train_loss: 0.11180739849805832, val_loss: 4.6100568771362305
+epoch: 10, train_acc: 0.9624359011650085, val_acc: 0.9452914595603943
+epoch: 20, train_loss: 0.06319965422153473, val_loss: 3.1552038192749023
+epoch: 20, train_acc: 0.9766672253608704, val_acc: 0.9677129983901978
+epoch: 30, train_loss: 0.041549183428287506, val_loss: 3.7731552124023438
+epoch: 30, train_acc: 0.979314923286438, val_acc: 0.963228702545166
+epoch: 40, train_loss: 0.030243732035160065, val_loss: 3.4513604640960693
+epoch: 40, train_acc: 0.9963594675064087, val_acc: 0.9829596281051636</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="354">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>plot_acc_curves(loss_dict)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>plot_loss_curves(loss_dict)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab5%20Spam%20Detection_files/figure-html/cell-26-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab5%20Spam%20Detection_files/figure-html/cell-26-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="306">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>val_acc <span class="op">=</span> get_accuracy(model, val_iter, <span class="bu">len</span>(text_field.vocab.itos), <span class="st">"cuda:0"</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>val_acc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>c:\ProgramData\Anaconda3\envs\pytorch-torchtext\lib\site-packages\torch\nn\functional.py:1709: UserWarning: nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.
+  warnings.warn("nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.")</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="306">
+<pre><code>tensor(0.9830, device='cuda:0')</code></pre>
+</div>
+</div>
+</section>
+<section id="part-c-4-pt-1" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-4-pt-1">Part (c) [4 pt]</h3>
+<p>Choose at least 4 hyperparameters to tune. Explain how you tuned the hyperparameters. You don’t need to include your training curve for every model you trained. Instead, explain what hyperparemters you tuned, what the best validation accuracy was, and the reasoning behind the hyperparameter decisions you made.</p>
+<p>For this assignment, you should tune more than just your learning rate and epoch. Choose at least 2 hyperparameters that are unrelated to the optimizer.</p>
+<p>In this section, we will consider the <code>num_layer</code>, <code>hidden_size</code>, <code>learning_rate</code>, and <code>weight_decay</code> parameters. We will also run the better hyperparameter through some further tuned hyperparameters using the better hyperparameter set as a starting line. Overall, we will approach hyperparameter tuning from a grid search like approach. First, we consider a low amount of layers with a small hidden size to examine a smaller network with a higher learning rate and low weight decay to examine the effects of a smaller network that is “easier” to train (consider that we do not need a larger weight decay if the network is less complex because less penalization for the network is required). So for this first set, we consider <code>num_layer = 2</code>, <code>hidden_size = 50</code>, <code>learning_rate = 5e-4</code>, and <code>weight_decay=1e-6</code>. Second, we will consider a high amount of layers with a large hidden size and a lower learning rate and higher weight decay. So we can consider the following for the second set: <code>num_layer = 10</code>, <code>hidden_size = 300</code>, <code>learning_rate = 8e-5</code>, and <code>weight_decay=1e-4</code>. Then for the 3rd set, we approach it through the grid search approach, so we will consider a low amount of layers with a small hidden size with a lower learning rate and higher weight decay, so we can consider: <code>num_layer = 2</code>, <code>hidden_size = 50</code>, <code>learning_rate = 8e-5</code>, and <code>weight_decay=1e-4</code>. Finally, we can also consider a high amount of layers with a large hidden size and a higher learning rate and lower weight decay: <code>num_layer = 10</code>, <code>hidden_size = 300</code>, <code>learning_rate = 5e-4</code>, and <code>weight_decay=1e-6</code>.</p>
+<div class="cell" data-execution_count="338">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>low_lr <span class="op">=</span> <span class="fl">4e-4</span> </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>high_lr <span class="op">=</span> <span class="fl">6e-4</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>low_wd <span class="op">=</span> <span class="fl">1e-6</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>high_wd <span class="op">=</span> <span class="fl">3e-6</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>low_hid <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>high_hid <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>low_num_layers <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>high_num_layers <span class="op">=</span> <span class="dv">4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="329">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 1, low_num_layers, low_hid, high_lr, low_wd</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>Test1_SpamClassifier <span class="op">=</span> SimpleRNN(</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    corpus_size <span class="op">=</span> <span class="bu">len</span>(text_field.vocab.itos), n_layers<span class="op">=</span>low_num_layers, hidden_size<span class="op">=</span>low_hid)</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>Test1_model, Test1_loss_dict <span class="op">=</span> train_loop(Test1_SpamClassifier, train_iter, val_iter, <span class="bu">len</span>(text_field.vocab.itos),</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>                         num_epochs<span class="op">=</span><span class="dv">50</span>, val_epochs<span class="op">=</span><span class="dv">10</span>, learning_rate<span class="op">=</span>high_lr, weight_decay<span class="op">=</span>low_wd, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>epoch: 0, train_loss: 0.5594639182090759, val_loss: 6.098099231719971
+epoch: 0, train_acc: 0.9344696402549744, val_acc: 0.9515694975852966
+epoch: 10, train_loss: 0.10263323783874512, val_loss: 4.252440929412842
+epoch: 10, train_acc: 0.9687241911888123, val_acc: 0.9542600512504578
+epoch: 20, train_loss: 0.03237751126289368, val_loss: 3.32724666595459
+epoch: 20, train_acc: 0.98891282081604, val_acc: 0.9686098098754883
+epoch: 30, train_loss: 0.015133311040699482, val_loss: 3.521516799926758
+epoch: 30, train_acc: 0.9983452558517456, val_acc: 0.9856501817703247
+epoch: 40, train_loss: 0.004557956475764513, val_loss: 3.567976236343384
+epoch: 40, train_acc: 0.9995036125183105, val_acc: 0.9856501817703247</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="339">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 2, high_num_layers, high_hid, low_lr, high_wd</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>Test2_SpamClassifier <span class="op">=</span> SimpleRNN(</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    corpus_size <span class="op">=</span> <span class="bu">len</span>(text_field.vocab.itos), n_layers<span class="op">=</span>high_num_layers, hidden_size<span class="op">=</span>high_hid)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>Test2_model, Test2_loss_dict <span class="op">=</span> train_loop(Test2_SpamClassifier, train_iter, val_iter, <span class="bu">len</span>(text_field.vocab.itos),</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>                         num_epochs<span class="op">=</span><span class="dv">50</span>, val_epochs<span class="op">=</span><span class="dv">2</span>, learning_rate<span class="op">=</span>low_lr, weight_decay<span class="op">=</span>high_wd, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>epoch: 0, train_loss: 0.5935415029525757, val_loss: 7.160689353942871</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>c:\ProgramData\Anaconda3\envs\pytorch-torchtext\lib\site-packages\torch\nn\functional.py:1709: UserWarning: nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.
+  warnings.warn("nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.")</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>epoch: 0, train_acc: 0.9200728535652161, val_acc: 0.9766815900802612
+epoch: 2, train_loss: 0.14948925375938416, val_loss: 4.513606071472168
+epoch: 2, train_acc: 0.9578024744987488, val_acc: 0.9668161273002625
+epoch: 4, train_loss: 0.11511154472827911, val_loss: 4.0667524337768555
+epoch: 4, train_acc: 0.968558669090271, val_acc: 0.9686098098754883
+epoch: 6, train_loss: 0.0934830978512764, val_loss: 2.547231674194336
+epoch: 6, train_acc: 0.9559821486473083, val_acc: 0.9757847189903259
+epoch: 8, train_loss: 0.06722303479909897, val_loss: 3.0853378772735596
+epoch: 8, train_acc: 0.9824590682983398, val_acc: 0.9686098098754883
+epoch: 10, train_loss: 0.0543290413916111, val_loss: 3.437964677810669
+epoch: 10, train_acc: 0.9882509112358093, val_acc: 0.9677129983901978
+epoch: 12, train_loss: 0.044877324253320694, val_loss: 3.539114236831665
+epoch: 12, train_acc: 0.9885818362236023, val_acc: 0.9704035520553589
+epoch: 14, train_loss: 0.04462344944477081, val_loss: 3.8613054752349854
+epoch: 14, train_acc: 0.989740252494812, val_acc: 0.9650223851203918
+epoch: 16, train_loss: 0.03788577392697334, val_loss: 3.7760229110717773
+epoch: 16, train_acc: 0.9907330870628357, val_acc: 0.9641255140304565
+epoch: 18, train_loss: 0.026874009519815445, val_loss: 3.1408746242523193
+epoch: 18, train_acc: 0.9958630204200745, val_acc: 0.9766815900802612
+epoch: 20, train_loss: 0.03877861425280571, val_loss: 3.4172306060791016
+epoch: 20, train_acc: 0.9952011108398438, val_acc: 0.9766815900802612
+epoch: 22, train_loss: 0.018624810501933098, val_loss: 3.59389591217041
+epoch: 22, train_acc: 0.9874234795570374, val_acc: 0.9766815900802612
+epoch: 24, train_loss: 0.015050291083753109, val_loss: 4.083364486694336
+epoch: 24, train_acc: 0.9958630204200745, val_acc: 0.9775784611701965
+epoch: 26, train_loss: 0.013508303090929985, val_loss: 5.872461318969727
+epoch: 26, train_acc: 0.9895747303962708, val_acc: 0.9614349603652954
+epoch: 28, train_loss: 0.016990721225738525, val_loss: 4.011845111846924
+epoch: 28, train_acc: 0.9955320358276367, val_acc: 0.9829596281051636
+epoch: 30, train_loss: 0.01082478929311037, val_loss: 3.545778512954712
+epoch: 30, train_acc: 0.9988416433334351, val_acc: 0.9847533106803894
+epoch: 32, train_loss: 0.013141762465238571, val_loss: 4.424249649047852
+epoch: 32, train_acc: 0.9968559145927429, val_acc: 0.9739909768104553
+epoch: 34, train_loss: 0.017972813919186592, val_loss: 4.889667510986328
+epoch: 34, train_acc: 0.9993380904197693, val_acc: 0.9784753322601318
+epoch: 36, train_loss: 0.008784778416156769, val_loss: 4.830638408660889
+epoch: 36, train_acc: 0.999669075012207, val_acc: 0.981165885925293
+epoch: 38, train_loss: 0.01091624516993761, val_loss: 4.263648986816406
+epoch: 38, train_acc: 0.9998345375061035, val_acc: 0.9820627570152283
+epoch: 40, train_loss: 0.0035037891939282417, val_loss: 5.847288131713867
+epoch: 40, train_acc: 0.9995036125183105, val_acc: 0.9829596281051636
+epoch: 42, train_loss: 0.06468901038169861, val_loss: 3.3801310062408447
+epoch: 42, train_acc: 0.9966903924942017, val_acc: 0.9748878479003906
+epoch: 44, train_loss: 0.009517863392829895, val_loss: 4.1363205909729
+epoch: 44, train_acc: 0.996028482913971, val_acc: 0.9802690148353577
+epoch: 46, train_loss: 0.007062247022986412, val_loss: 4.5332159996032715
+epoch: 46, train_acc: 0.9995036125183105, val_acc: 0.9802690148353577
+epoch: 48, train_loss: 0.0032734954729676247, val_loss: 5.210238456726074
+epoch: 48, train_acc: 0.9998345375061035, val_acc: 0.9793721437454224</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="340">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 3, low_num_layers, low_hid, low_lr, high_wd</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>Test3_SpamClassifier <span class="op">=</span> SimpleRNN(</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    corpus_size <span class="op">=</span> <span class="bu">len</span>(text_field.vocab.itos), n_layers<span class="op">=</span>low_num_layers, hidden_size<span class="op">=</span>low_hid)</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>Test3_model, Test3_loss_dict <span class="op">=</span> train_loop(Test3_SpamClassifier, train_iter, val_iter, <span class="bu">len</span>(text_field.vocab.itos),</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>                         num_epochs<span class="op">=</span><span class="dv">50</span>, val_epochs<span class="op">=</span><span class="dv">2</span>, learning_rate<span class="op">=</span>low_lr, weight_decay<span class="op">=</span>high_wd, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>epoch: 0, train_loss: 0.6457530856132507, val_loss: 17.74270248413086
+epoch: 0, train_acc: 0.9238789081573486, val_acc: 0.9569506645202637
+epoch: 2, train_loss: 0.1297154724597931, val_loss: 3.3653273582458496
+epoch: 2, train_acc: 0.9573060274124146, val_acc: 0.9650223851203918
+epoch: 4, train_loss: 0.10723095387220383, val_loss: 1.9876598119735718
+epoch: 4, train_acc: 0.9515141844749451, val_acc: 0.9784753322601318
+epoch: 6, train_loss: 0.09836742281913757, val_loss: 3.4608869552612305
+epoch: 6, train_acc: 0.978156566619873, val_acc: 0.9641255140304565
+epoch: 8, train_loss: 0.07461708039045334, val_loss: 2.1940877437591553
+epoch: 8, train_acc: 0.9836174249649048, val_acc: 0.9784753322601318
+epoch: 10, train_loss: 0.05971953645348549, val_loss: 1.9406442642211914
+epoch: 10, train_acc: 0.9874234795570374, val_acc: 0.9829596281051636
+epoch: 12, train_loss: 0.04308571293950081, val_loss: 3.4393162727355957
+epoch: 12, train_acc: 0.9822936058044434, val_acc: 0.9668161273002625
+epoch: 14, train_loss: 0.033712130039930344, val_loss: 2.4500532150268555
+epoch: 14, train_acc: 0.9928843379020691, val_acc: 0.9829596281051636
+epoch: 16, train_loss: 0.030183332040905952, val_loss: 4.104140758514404
+epoch: 16, train_acc: 0.9829555153846741, val_acc: 0.9677129983901978
+epoch: 18, train_loss: 0.040506597608327866, val_loss: 2.5388152599334717
+epoch: 18, train_acc: 0.995697557926178, val_acc: 0.981165885925293
+epoch: 20, train_loss: 0.017602263018488884, val_loss: 2.6519107818603516
+epoch: 20, train_acc: 0.9970213770866394, val_acc: 0.98654705286026
+epoch: 22, train_loss: 0.024681344628334045, val_loss: 6.302526950836182
+epoch: 22, train_acc: 0.9688896536827087, val_acc: 0.9372196793556213
+epoch: 24, train_loss: 0.025134457275271416, val_loss: 2.480010986328125
+epoch: 24, train_acc: 0.9978488087654114, val_acc: 0.9856501817703247
+epoch: 26, train_loss: 0.01249693427234888, val_loss: 2.779083013534546
+epoch: 26, train_acc: 0.9980142712593079, val_acc: 0.9856501817703247
+epoch: 28, train_loss: 0.011676260270178318, val_loss: 4.078176498413086
+epoch: 28, train_acc: 0.9981797337532043, val_acc: 0.98654705286026
+epoch: 30, train_loss: 0.022215673699975014, val_loss: 2.804915428161621
+epoch: 30, train_acc: 0.994539201259613, val_acc: 0.98654705286026
+epoch: 32, train_loss: 0.016417300328612328, val_loss: 3.180436134338379
+epoch: 32, train_acc: 0.9894092679023743, val_acc: 0.9766815900802612
+epoch: 34, train_loss: 0.011255878023803234, val_loss: 3.2579877376556396
+epoch: 34, train_acc: 0.9978488087654114, val_acc: 0.9847533106803894
+epoch: 36, train_loss: 0.009851786307990551, val_loss: 3.7130017280578613
+epoch: 36, train_acc: 0.9981797337532043, val_acc: 0.9847533106803894
+epoch: 38, train_loss: 0.00988844782114029, val_loss: 4.449872970581055
+epoch: 38, train_acc: 0.9983452558517456, val_acc: 0.9847533106803894
+epoch: 40, train_loss: 0.030726661905646324, val_loss: 2.566408157348633
+epoch: 40, train_acc: 0.9981797337532043, val_acc: 0.981165885925293
+epoch: 42, train_loss: 0.007905294187366962, val_loss: 3.304788112640381
+epoch: 42, train_acc: 0.9983452558517456, val_acc: 0.9847533106803894
+epoch: 44, train_loss: 0.16717244684696198, val_loss: 2.600999116897583
+epoch: 44, train_acc: 0.9930498600006104, val_acc: 0.9793721437454224
+epoch: 46, train_loss: 0.01374652236700058, val_loss: 3.205137252807617
+epoch: 46, train_acc: 0.9978488087654114, val_acc: 0.981165885925293
+epoch: 48, train_loss: 0.009638057090342045, val_loss: 3.4247283935546875
+epoch: 48, train_acc: 0.9980142712593079, val_acc: 0.9820627570152283</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="342">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test4, high_num_layers, high_hid, high_lr, low_wd</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>Test4_SpamClassifier <span class="op">=</span> SimpleRNN(</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    corpus_size <span class="op">=</span> <span class="bu">len</span>(text_field.vocab.itos), n_layers<span class="op">=</span>low_num_layers, hidden_size<span class="op">=</span>low_hid)</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>Test4_model, Test4_loss_dict <span class="op">=</span> train_loop(Test4_SpamClassifier, train_iter, val_iter, <span class="bu">len</span>(text_field.vocab.itos),</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>                         num_epochs<span class="op">=</span><span class="dv">50</span>, val_epochs<span class="op">=</span><span class="dv">2</span>, learning_rate<span class="op">=</span>high_lr, weight_decay<span class="op">=</span>low_wd, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>epoch: 0, train_loss: 0.5417205691337585, val_loss: 7.275435447692871
+epoch: 0, train_acc: 0.9144464731216431, val_acc: 0.9686098098754883
+epoch: 2, train_loss: 0.143855482339859, val_loss: 3.471240282058716
+epoch: 2, train_acc: 0.9531689882278442, val_acc: 0.9668161273002625
+epoch: 4, train_loss: 0.104254350066185, val_loss: 2.3393943309783936
+epoch: 4, train_acc: 0.9713718891143799, val_acc: 0.9757847189903259
+epoch: 6, train_loss: 0.08013563603162766, val_loss: 1.9657011032104492
+epoch: 6, train_acc: 0.9826245307922363, val_acc: 0.981165885925293
+epoch: 8, train_loss: 0.0517394132912159, val_loss: 2.141011953353882
+epoch: 8, train_acc: 0.989740252494812, val_acc: 0.9757847189903259
+epoch: 10, train_loss: 0.04356437548995018, val_loss: 2.475397825241089
+epoch: 10, train_acc: 0.9910640716552734, val_acc: 0.9730941653251648
+epoch: 12, train_loss: 0.02569805644452572, val_loss: 3.3836121559143066
+epoch: 12, train_acc: 0.9869270324707031, val_acc: 0.9695066809654236
+epoch: 14, train_loss: 0.015195001848042011, val_loss: 2.2134995460510254
+epoch: 14, train_acc: 0.9983452558517456, val_acc: 0.9901344776153564
+epoch: 16, train_loss: 0.024441758170723915, val_loss: 2.606642723083496
+epoch: 16, train_acc: 0.9961940050125122, val_acc: 0.981165885925293
+epoch: 18, train_loss: 0.008967653848230839, val_loss: 2.7535791397094727
+epoch: 18, train_acc: 0.9991726279258728, val_acc: 0.9892376661300659
+epoch: 20, train_loss: 0.008076583966612816, val_loss: 2.5184690952301025
+epoch: 20, train_acc: 0.9991726279258728, val_acc: 0.9892376661300659
+epoch: 22, train_loss: 0.02753860130906105, val_loss: 2.6894893646240234
+epoch: 22, train_acc: 0.9991726279258728, val_acc: 0.9901344776153564
+epoch: 24, train_loss: 0.0047302404418587685, val_loss: 3.02071213722229
+epoch: 24, train_acc: 0.9993380904197693, val_acc: 0.9910313487052917
+epoch: 26, train_loss: 0.002648554975166917, val_loss: 2.940589189529419
+epoch: 26, train_acc: 0.9995036125183105, val_acc: 0.98654705286026
+epoch: 28, train_loss: 0.002425492275506258, val_loss: 4.074878692626953
+epoch: 28, train_acc: 0.9998345375061035, val_acc: 0.9874439239501953
+epoch: 30, train_loss: 0.03659381717443466, val_loss: 2.247919797897339
+epoch: 30, train_acc: 0.996028482913971, val_acc: 0.9829596281051636
+epoch: 32, train_loss: 0.0024258079938590527, val_loss: 3.277750015258789
+epoch: 32, train_acc: 0.9998345375061035, val_acc: 0.9883407950401306
+epoch: 34, train_loss: 0.00036938078119419515, val_loss: 3.114154577255249
+epoch: 34, train_acc: 1.0, val_acc: 0.9874439239501953
+epoch: 36, train_loss: 6.68576467433013e-05, val_loss: 3.273498296737671
+epoch: 36, train_acc: 1.0, val_acc: 0.9883407950401306
+epoch: 38, train_loss: 3.469281000434421e-05, val_loss: 3.732635498046875
+epoch: 38, train_acc: 1.0, val_acc: 0.9883407950401306
+epoch: 40, train_loss: 0.00259116617962718, val_loss: 9.81916332244873
+epoch: 40, train_acc: 0.9453914165496826, val_acc: 0.9748878479003906
+epoch: 42, train_loss: 0.0005310507258400321, val_loss: 2.9149715900421143
+epoch: 42, train_acc: 1.0, val_acc: 0.9874439239501953
+epoch: 44, train_loss: 6.757055234629661e-05, val_loss: 2.9385101795196533
+epoch: 44, train_acc: 1.0, val_acc: 0.98654705286026
+epoch: 46, train_loss: 3.0812909244559705e-05, val_loss: 3.390098810195923
+epoch: 46, train_acc: 1.0, val_acc: 0.9874439239501953
+epoch: 48, train_loss: 1.873482506198343e-05, val_loss: 3.532932996749878
+epoch: 48, train_acc: 1.0, val_acc: 0.98654705286026</code></pre>
+</div>
+</div>
+<p>The hyperparameter sets all performed quite similarly <span class="math inline">\(\approx 98\%\)</span> on the validation set. The test 4 model performed marginally better since it was able to hit almost <span class="math inline">\(99\%\)</span> accuracy on the validation set. So we will run test 5 using test 4 hyperparameters with slight changes to the hyperparameters. We will increase the weight decay slightly since we may be able to get slightly better validation set performance through better regularization (model memorizes train set perfectly). Then, we could slightly increase the learning rate since there isn’t really any “bouncing”, i.e., loss curve seems stable.</p>
+<div class="cell" data-execution_count="346">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 5, high_num_layers, high_hid, high_lr, low_wd</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>Test5_SpamClassifier <span class="op">=</span> SimpleRNN(</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>    corpus_size <span class="op">=</span> <span class="bu">len</span>(text_field.vocab.itos), n_layers<span class="op">=</span>low_num_layers, hidden_size<span class="op">=</span>low_hid)</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>Test5_model, Test5_loss_dict <span class="op">=</span> train_loop(Test5_SpamClassifier, train_iter, val_iter, <span class="bu">len</span>(text_field.vocab.itos),</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>                         num_epochs<span class="op">=</span><span class="dv">50</span>, val_epochs<span class="op">=</span><span class="dv">1</span>, learning_rate<span class="op">=</span>high_lr<span class="op">+</span><span class="fl">3e-4</span>, weight_decay<span class="op">=</span>low_wd<span class="op">+</span><span class="fl">4e-6</span>, acc_func<span class="op">=</span>get_accuracy, plot_acc<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>epoch: 0, train_loss: 0.4897180199623108, val_loss: 2.9879965782165527
+epoch: 0, train_acc: 0.9333112835884094, val_acc: 0.9784753322601318
+epoch: 1, train_loss: 0.15906496345996857, val_loss: 3.002351760864258
+epoch: 1, train_acc: 0.9543273448944092, val_acc: 0.9721972942352295
+epoch: 2, train_loss: 0.12375590205192566, val_loss: 2.976738214492798
+epoch: 2, train_acc: 0.9609465599060059, val_acc: 0.9730941653251648
+epoch: 3, train_loss: 0.09626881778240204, val_loss: 8.057890892028809
+epoch: 3, train_acc: 0.9442330598831177, val_acc: 0.915695071220398
+epoch: 4, train_loss: 0.07461473345756531, val_loss: 2.8430826663970947
+epoch: 4, train_acc: 0.9819626212120056, val_acc: 0.9686098098754883
+epoch: 5, train_loss: 0.0549466609954834, val_loss: 2.444581985473633
+epoch: 5, train_acc: 0.9869270324707031, val_acc: 0.9784753322601318
+epoch: 6, train_loss: 0.04566168412566185, val_loss: 5.6167707443237305
+epoch: 6, train_acc: 0.9252027273178101, val_acc: 0.9829596281051636
+epoch: 7, train_loss: 0.07806945592164993, val_loss: 2.7464118003845215
+epoch: 7, train_acc: 0.9884163737297058, val_acc: 0.9829596281051636
+epoch: 8, train_loss: 0.03703707456588745, val_loss: 3.533384323120117
+epoch: 8, train_acc: 0.9918915033340454, val_acc: 0.9820627570152283
+epoch: 9, train_loss: 0.02604917250573635, val_loss: 3.8792707920074463
+epoch: 9, train_acc: 0.983782947063446, val_acc: 0.9596412181854248
+epoch: 10, train_loss: 0.019529711455106735, val_loss: 3.119821786880493
+epoch: 10, train_acc: 0.9966903924942017, val_acc: 0.9820627570152283
+epoch: 11, train_loss: 0.03276343643665314, val_loss: 2.50331711769104
+epoch: 11, train_acc: 0.996028482913971, val_acc: 0.981165885925293
+epoch: 12, train_loss: 0.016711382195353508, val_loss: 2.828434705734253
+epoch: 12, train_acc: 0.9978488087654114, val_acc: 0.9856501817703247
+epoch: 13, train_loss: 0.013447137549519539, val_loss: 2.8361895084381104
+epoch: 13, train_acc: 0.9970213770866394, val_acc: 0.9856501817703247
+epoch: 14, train_loss: 0.0208586398512125, val_loss: 3.238297700881958
+epoch: 14, train_acc: 0.995697557926178, val_acc: 0.9784753322601318
+epoch: 15, train_loss: 0.011156103573739529, val_loss: 3.2999966144561768
+epoch: 15, train_acc: 0.9958630204200745, val_acc: 0.9802690148353577
+epoch: 16, train_loss: 0.010975008830428123, val_loss: 5.0777130126953125
+epoch: 16, train_acc: 0.9991726279258728, val_acc: 0.9847533106803894
+epoch: 17, train_loss: 0.00337865948677063, val_loss: 5.4922685623168945
+epoch: 17, train_acc: 0.9995036125183105, val_acc: 0.9847533106803894
+epoch: 18, train_loss: 0.004550111945718527, val_loss: 3.8595130443573
+epoch: 18, train_acc: 0.9963594675064087, val_acc: 0.9856501817703247
+epoch: 19, train_loss: 0.02170737460255623, val_loss: 2.8183751106262207
+epoch: 19, train_acc: 0.9980142712593079, val_acc: 0.98654705286026
+epoch: 20, train_loss: 0.0019146797712892294, val_loss: 5.556771278381348
+epoch: 20, train_acc: 0.9958630204200745, val_acc: 0.9838564991950989
+epoch: 21, train_loss: 0.0010500014759600163, val_loss: 4.393078327178955
+epoch: 21, train_acc: 1.0, val_acc: 0.9874439239501953
+epoch: 22, train_loss: 0.024387910962104797, val_loss: 1.780351996421814
+epoch: 22, train_acc: 0.9955320358276367, val_acc: 0.9874439239501953
+epoch: 23, train_loss: 0.009387603029608727, val_loss: 2.611306667327881
+epoch: 23, train_acc: 0.9998345375061035, val_acc: 0.9883407950401306
+epoch: 24, train_loss: 0.00171154853887856, val_loss: 3.2421274185180664
+epoch: 24, train_acc: 0.9998345375061035, val_acc: 0.9874439239501953
+epoch: 25, train_loss: 0.0004784887714777142, val_loss: 3.5806703567504883
+epoch: 25, train_acc: 1.0, val_acc: 0.9883407950401306
+epoch: 26, train_loss: 0.0001248793414561078, val_loss: 3.373203992843628
+epoch: 26, train_acc: 1.0, val_acc: 0.9883407950401306
+epoch: 27, train_loss: 0.00010052655125036836, val_loss: 3.660898208618164
+epoch: 27, train_acc: 1.0, val_acc: 0.98654705286026
+epoch: 28, train_loss: 5.065924415248446e-05, val_loss: 4.086893558502197
+epoch: 28, train_acc: 1.0, val_acc: 0.9883407950401306
+epoch: 29, train_loss: 0.00019577440980356187, val_loss: 7.241224765777588
+epoch: 29, train_acc: 0.9760053157806396, val_acc: 0.9820627570152283
+epoch: 30, train_loss: 0.03766186907887459, val_loss: 2.9910659790039062
+epoch: 30, train_acc: 0.9923879504203796, val_acc: 0.9775784611701965
+epoch: 31, train_loss: 0.02467629685997963, val_loss: 2.2889604568481445
+epoch: 31, train_acc: 0.9978488087654114, val_acc: 0.9838564991950989
+epoch: 32, train_loss: 0.002383209066465497, val_loss: 2.8696088790893555
+epoch: 32, train_acc: 1.0, val_acc: 0.9874439239501953
+epoch: 33, train_loss: 0.0005118990084156394, val_loss: 3.687548875808716
+epoch: 33, train_acc: 1.0, val_acc: 0.9874439239501953
+epoch: 34, train_loss: 0.00017695226415526122, val_loss: 4.01516580581665
+epoch: 34, train_acc: 1.0, val_acc: 0.98654705286026
+epoch: 35, train_loss: 0.0020041740499436855, val_loss: 2.8103647232055664
+epoch: 35, train_acc: 1.0, val_acc: 0.9892376661300659
+epoch: 36, train_loss: 0.00016364711336791515, val_loss: 3.983201026916504
+epoch: 36, train_acc: 1.0, val_acc: 0.9883407950401306
+epoch: 37, train_loss: 8.48655981826596e-05, val_loss: 3.480271577835083
+epoch: 37, train_acc: 1.0, val_acc: 0.9901344776153564
+epoch: 38, train_loss: 5.47554373042658e-05, val_loss: 3.8125391006469727
+epoch: 38, train_acc: 1.0, val_acc: 0.9901344776153564
+epoch: 39, train_loss: 4.241341957822442e-05, val_loss: 3.470660924911499
+epoch: 39, train_acc: 1.0, val_acc: 0.9901344776153564
+epoch: 40, train_loss: 3.5408993426244706e-05, val_loss: 4.220162391662598
+epoch: 40, train_acc: 1.0, val_acc: 0.9901344776153564
+epoch: 41, train_loss: 3.085673233726993e-05, val_loss: 3.53061842918396
+epoch: 41, train_acc: 1.0, val_acc: 0.9892376661300659
+epoch: 42, train_loss: 3.938671943615191e-05, val_loss: 3.582397699356079
+epoch: 42, train_acc: 1.0, val_acc: 0.9910313487052917
+epoch: 43, train_loss: 2.812556704157032e-05, val_loss: 3.706843137741089
+epoch: 43, train_acc: 1.0, val_acc: 0.9892376661300659
+epoch: 44, train_loss: 2.9004690077272244e-05, val_loss: 3.7998886108398438
+epoch: 44, train_acc: 1.0, val_acc: 0.9892376661300659
+epoch: 45, train_loss: 1.852951754699461e-05, val_loss: 4.137790203094482
+epoch: 45, train_acc: 1.0, val_acc: 0.9883407950401306
+epoch: 46, train_loss: 2.1907431801082566e-05, val_loss: 4.233451843261719
+epoch: 46, train_acc: 1.0, val_acc: 0.9883407950401306
+epoch: 47, train_loss: 1.9606321075116284e-05, val_loss: 3.731112003326416
+epoch: 47, train_acc: 1.0, val_acc: 0.9883407950401306
+epoch: 48, train_loss: 1.825635445129592e-05, val_loss: 4.102089881896973
+epoch: 48, train_acc: 1.0, val_acc: 0.9892376661300659
+epoch: 49, train_loss: 1.7575504898559302e-05, val_loss: 4.069412708282471
+epoch: 49, train_acc: 1.0, val_acc: 0.9883407950401306</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="355">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>plot_acc_curves(Test5_loss_dict)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>plot_loss_curves(Test5_loss_dict)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab5%20Spam%20Detection_files/figure-html/cell-34-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Lab5%20Spam%20Detection_files/figure-html/cell-34-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p><strong>So with this set of hyperparameters, we were able to get a very stable <span class="math inline">\(98.8\%\)</span> to <span class="math inline">\(99.0\%\)</span> accuracy on the validation set.</strong></p>
+<div class="cell" data-execution_count="399">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sanity check for next part</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Dataset of only spam validation examples</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>train_spam <span class="op">=</span> torchtext.legacy.data.Dataset(</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>    [e <span class="cf">for</span> e <span class="kw">in</span> train.examples <span class="cf">if</span> e.label <span class="op">==</span> <span class="dv">1</span>],</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>    test.fields)</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>train_spam_iter <span class="op">=</span> torchtext.legacy.data.BucketIterator(train_spam,</span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>                                                       batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>                                                       <span class="co"># to minimize padding</span></span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a>                                                       sort_key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">len</span>(</span>
+<span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a>                                                           x.sms),</span>
+<span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a>                                                       sort_within_batch<span class="op">=</span><span class="va">True</span>,        <span class="co"># sort within each batch</span></span>
+<span id="cb57-13"><a href="#cb57-13" aria-hidden="true" tabindex="-1"></a>                                                       repeat<span class="op">=</span><span class="va">False</span>)                  <span class="co"># repeat the iterator for many epochs</span></span>
+<span id="cb57-14"><a href="#cb57-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-15"><a href="#cb57-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Dataset of only non-spam validation examples</span></span>
+<span id="cb57-16"><a href="#cb57-16" aria-hidden="true" tabindex="-1"></a>train_nospam <span class="op">=</span> torchtext.legacy.data.Dataset(</span>
+<span id="cb57-17"><a href="#cb57-17" aria-hidden="true" tabindex="-1"></a>    [e <span class="cf">for</span> e <span class="kw">in</span> train.examples <span class="cf">if</span> e.label <span class="op">==</span> <span class="dv">0</span>],</span>
+<span id="cb57-18"><a href="#cb57-18" aria-hidden="true" tabindex="-1"></a>    test.fields)</span>
+<span id="cb57-19"><a href="#cb57-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-20"><a href="#cb57-20" aria-hidden="true" tabindex="-1"></a>train_nospam_iter <span class="op">=</span> torchtext.legacy.data.BucketIterator(train_nospam,</span>
+<span id="cb57-21"><a href="#cb57-21" aria-hidden="true" tabindex="-1"></a>                                                         batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb57-22"><a href="#cb57-22" aria-hidden="true" tabindex="-1"></a>                                                         <span class="co"># to minimize padding</span></span>
+<span id="cb57-23"><a href="#cb57-23" aria-hidden="true" tabindex="-1"></a>                                                         sort_key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">len</span>(</span>
+<span id="cb57-24"><a href="#cb57-24" aria-hidden="true" tabindex="-1"></a>                                                             x.sms),</span>
+<span id="cb57-25"><a href="#cb57-25" aria-hidden="true" tabindex="-1"></a>                                                         sort_within_batch<span class="op">=</span><span class="va">True</span>,        <span class="co"># sort within each batch</span></span>
+<span id="cb57-26"><a href="#cb57-26" aria-hidden="true" tabindex="-1"></a>                                                         repeat<span class="op">=</span><span class="va">False</span>)                  <span class="co"># repeat the iterator for many epochs</span></span>
+<span id="cb57-27"><a href="#cb57-27" aria-hidden="true" tabindex="-1"></a>train_spam_acc <span class="op">=</span> get_accuracy(</span>
+<span id="cb57-28"><a href="#cb57-28" aria-hidden="true" tabindex="-1"></a>    Test5_model, train_spam_iter, <span class="bu">len</span>(text_field.vocab.itos), <span class="st">"cuda:0"</span>)</span>
+<span id="cb57-29"><a href="#cb57-29" aria-hidden="true" tabindex="-1"></a>train_nospam_acc <span class="op">=</span> get_accuracy(</span>
+<span id="cb57-30"><a href="#cb57-30" aria-hidden="true" tabindex="-1"></a>    Test5_model, train_nospam_iter, <span class="bu">len</span>(text_field.vocab.itos), <span class="st">"cuda:0"</span>)</span>
+<span id="cb57-31"><a href="#cb57-31" aria-hidden="true" tabindex="-1"></a>train_acc <span class="op">=</span> get_accuracy(Test5_model, train_iter,</span>
+<span id="cb57-32"><a href="#cb57-32" aria-hidden="true" tabindex="-1"></a>                         <span class="bu">len</span>(text_field.vocab.itos), <span class="st">"cuda:0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>c:\ProgramData\Anaconda3\envs\pytorch-torchtext\lib\site-packages\torch\nn\functional.py:1709: UserWarning: nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.
+  warnings.warn("nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.")
+c:\ProgramData\Anaconda3\envs\pytorch-torchtext\lib\site-packages\torch\nn\functional.py:1709: UserWarning: nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.
+  warnings.warn("nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.")</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="393">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(train_spam), <span class="bu">len</span>(train_nospam), train_spam_acc.cpu().numpy(),</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>      train_nospam_acc.cpu().numpy(), train_acc.cpu().numpy())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>3150 2893 0.99999994 1.0 1.0</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="398">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>train_spam_sanity_example <span class="op">=</span> train_spam[<span class="dv">10</span>]</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>train_spam_sanity <span class="op">=</span> <span class="st">""</span>.join([x <span class="cf">for</span> x <span class="kw">in</span> train_spam_sanity_example.sms])</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>    sms <span class="op">=</span> torch.tensor([text_field.vocab.stoi[x] <span class="cf">for</span> x <span class="kw">in</span> train_spam_sanity]).unsqueeze(<span class="dv">0</span>)</span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>    data_processed <span class="op">=</span> ident[sms].to(<span class="st">"cuda:0"</span>)</span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> Test5_model(data_processed)</span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> nn.functional.sigmoid(pred).reshape(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>    pred_class <span class="op">=</span> (pred<span class="op">&gt;=</span><span class="fl">0.5</span>).<span class="bu">float</span>()</span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="bu">float</span>(pred.cpu().numpy()), <span class="bu">int</span>(pred_class))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1.4188478170140684e-09 0</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>c:\ProgramData\Anaconda3\envs\pytorch-torchtext\lib\site-packages\torch\nn\functional.py:1709: UserWarning: nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.
+  warnings.warn("nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.")</code></pre>
+</div>
+</div>
+</section>
+<section id="part-d-2-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-d-2-pt">Part (d) [2 pt]</h3>
+<p>Before we deploy a machine learning model, we usually want to have a better understanding of how our model performs beyond its validation accuracy. An important metric to track is <em>how well our model performs in certain subsets of the data</em>.</p>
+<p>In particular, what is the model’s error rate amongst data with negative labels? This is called the <strong>false positive rate</strong>.</p>
+<p>What about the model’s error rate amongst data with positive labels? This is called the <strong>false negative rate</strong>.</p>
+<p>Report your final model’s false positive and false negative rate across the validation set.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="359">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Dataset of only spam validation examples</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>valid_spam <span class="op">=</span> torchtext.legacy.data.Dataset(</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>    [e <span class="cf">for</span> e <span class="kw">in</span> val.examples <span class="cf">if</span> e.label <span class="op">==</span> <span class="dv">1</span>],</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>    val.fields)</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>val_spam_iter <span class="op">=</span> torchtext.legacy.data.BucketIterator(valid_spam,</span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>                                                     batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>                                                     <span class="co"># to minimize padding</span></span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>                                                     sort_key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">len</span>(</span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>                                                         x.sms),</span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>                                                     sort_within_batch<span class="op">=</span><span class="va">True</span>,        <span class="co"># sort within each batch</span></span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a>                                                     repeat<span class="op">=</span><span class="va">False</span>)                  <span class="co"># repeat the iterator for many epochs</span></span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Dataset of only non-spam validation examples</span></span>
+<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a>valid_nospam <span class="op">=</span> torchtext.legacy.data.Dataset(</span>
+<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a>    [e <span class="cf">for</span> e <span class="kw">in</span> val.examples <span class="cf">if</span> e.label <span class="op">==</span> <span class="dv">0</span>],</span>
+<span id="cb64-17"><a href="#cb64-17" aria-hidden="true" tabindex="-1"></a>    val.fields)</span>
+<span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-19"><a href="#cb64-19" aria-hidden="true" tabindex="-1"></a>val_nospam_iter <span class="op">=</span> torchtext.legacy.data.BucketIterator(valid_nospam,</span>
+<span id="cb64-20"><a href="#cb64-20" aria-hidden="true" tabindex="-1"></a>                                                     batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb64-21"><a href="#cb64-21" aria-hidden="true" tabindex="-1"></a>                                                     <span class="co"># to minimize padding</span></span>
+<span id="cb64-22"><a href="#cb64-22" aria-hidden="true" tabindex="-1"></a>                                                     sort_key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">len</span>(</span>
+<span id="cb64-23"><a href="#cb64-23" aria-hidden="true" tabindex="-1"></a>                                                         x.sms),</span>
+<span id="cb64-24"><a href="#cb64-24" aria-hidden="true" tabindex="-1"></a>                                                     sort_within_batch<span class="op">=</span><span class="va">True</span>,        <span class="co"># sort within each batch</span></span>
+<span id="cb64-25"><a href="#cb64-25" aria-hidden="true" tabindex="-1"></a>                                                     repeat<span class="op">=</span><span class="va">False</span>)                  <span class="co"># repeat the iterator for many epochs</span></span>
+<span id="cb64-26"><a href="#cb64-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-27"><a href="#cb64-27" aria-hidden="true" tabindex="-1"></a>val_spam_acc <span class="op">=</span> get_accuracy(model, val_spam_iter, <span class="bu">len</span>(text_field.vocab.itos), <span class="st">"cuda:0"</span>)</span>
+<span id="cb64-28"><a href="#cb64-28" aria-hidden="true" tabindex="-1"></a>val_nospam_acc <span class="op">=</span> get_accuracy(model, val_nospam_iter, <span class="bu">len</span>(text_field.vocab.itos), <span class="st">"cuda:0"</span>)</span>
+<span id="cb64-29"><a href="#cb64-29" aria-hidden="true" tabindex="-1"></a>val_acc <span class="op">=</span> get_accuracy(model, val_iter, <span class="bu">len</span>(text_field.vocab.itos), <span class="st">"cuda:0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>c:\ProgramData\Anaconda3\envs\pytorch-torchtext\lib\site-packages\torch\nn\functional.py:1709: UserWarning: nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.
+  warnings.warn("nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.")</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="360">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(val_spam_acc.cpu().numpy(), val_nospam_acc.cpu().numpy(), val_acc.cpu().numpy())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.91891897 0.99069285 0.9856502</code></pre>
+</div>
+</div>
+<p>The false positive rate was the complement of the accuracy on the no-spam validation data subset, <span class="math inline">\(1-0.99069285=0.0093071500&lt;1\%\)</span>, since these were the wrongly classified as spam examples (predicted as spam but aren’t). The false negative rate was the complement of the accuracy on the spam validation data subset, <span class="math inline">\(1-0.91891897=0.08108103 \approx 8\%\)</span>, since these were the wrongly classified as not spam examples (predicted as not spam but are).</p>
+</section>
+<section id="part-e-2-pt-1" class="level3">
+<h3 class="anchored" data-anchor-id="part-e-2-pt-1">Part (e) [2 pt]</h3>
+<p>The impact of a false positive vs a false negative can be drastically different. If our spam detection algorithm was deployed on your phone, what is the impact of a false positive on the phone’s user? What is the impact of a false negative?</p>
+<p>False positive means that we mistakenly classify a non-spam example as a spam text, while false negative means that we mistakenly classify a spam example as not spam. So the impact of a false positive may be that the user misses some text, which is possibly important, while the impact of a false negative is that a spam text is classified as safe, where the spam text could have dangerous content like phishing links. While the exact impact of a false positive versus false negative is not immediately and precisely clear without examining the “average” (or even distribution if possible) false positive versus false negative, generally extreme cases like phishing links could be more dangerous as being marked “safe” (not spam) than just having the user check their spam folder perodically.</p>
+</section>
+</section>
+<section id="part-4.-evaluation-11-pt" class="level2">
+<h2 class="anchored" data-anchor-id="part-4.-evaluation-11-pt">Part 4. Evaluation [11 pt]</h2>
+<section id="part-a-1-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-1-pt">Part (a) [1 pt]</h3>
+<p>Report the final test accuracy of your model.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="361">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>test_acc <span class="op">=</span> get_accuracy(Test5_model, test_iter, <span class="bu">len</span>(text_field.vocab.itos), <span class="st">"cuda:0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="362">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Test Accuracy: </span><span class="sc">{</span>test_acc<span class="sc">.</span>cpu()<span class="sc">.</span>numpy()<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Test Accuracy: 0.9865350127220154</code></pre>
+</div>
+</div>
+</section>
+<section id="part-b-3-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-3-pt">Part (b) [3 pt]</h3>
+<p>Report the false positive rate and false negative rate of your model across the test set.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="364">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Dataset of only spam validation examples</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>test_spam <span class="op">=</span> torchtext.legacy.data.Dataset(</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>    [e <span class="cf">for</span> e <span class="kw">in</span> test.examples <span class="cf">if</span> e.label <span class="op">==</span> <span class="dv">1</span>],</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>    test.fields)</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>test_spam_iter <span class="op">=</span> torchtext.legacy.data.BucketIterator(test_spam,</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>                                                     batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>                                                     <span class="co"># to minimize padding</span></span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>                                                     sort_key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">len</span>(</span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>                                                         x.sms),</span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>                                                     sort_within_batch<span class="op">=</span><span class="va">True</span>,        <span class="co"># sort within each batch</span></span>
+<span id="cb71-12"><a href="#cb71-12" aria-hidden="true" tabindex="-1"></a>                                                     repeat<span class="op">=</span><span class="va">False</span>)                  <span class="co"># repeat the iterator for many epochs</span></span>
+<span id="cb71-13"><a href="#cb71-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-14"><a href="#cb71-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Dataset of only non-spam validation examples</span></span>
+<span id="cb71-15"><a href="#cb71-15" aria-hidden="true" tabindex="-1"></a>test_nospam <span class="op">=</span> torchtext.legacy.data.Dataset(</span>
+<span id="cb71-16"><a href="#cb71-16" aria-hidden="true" tabindex="-1"></a>    [e <span class="cf">for</span> e <span class="kw">in</span> test.examples <span class="cf">if</span> e.label <span class="op">==</span> <span class="dv">0</span>],</span>
+<span id="cb71-17"><a href="#cb71-17" aria-hidden="true" tabindex="-1"></a>    test.fields)</span>
+<span id="cb71-18"><a href="#cb71-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-19"><a href="#cb71-19" aria-hidden="true" tabindex="-1"></a>test_nospam_iter <span class="op">=</span> torchtext.legacy.data.BucketIterator(test_nospam,</span>
+<span id="cb71-20"><a href="#cb71-20" aria-hidden="true" tabindex="-1"></a>                                                     batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb71-21"><a href="#cb71-21" aria-hidden="true" tabindex="-1"></a>                                                     <span class="co"># to minimize padding</span></span>
+<span id="cb71-22"><a href="#cb71-22" aria-hidden="true" tabindex="-1"></a>                                                     sort_key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">len</span>(</span>
+<span id="cb71-23"><a href="#cb71-23" aria-hidden="true" tabindex="-1"></a>                                                         x.sms),</span>
+<span id="cb71-24"><a href="#cb71-24" aria-hidden="true" tabindex="-1"></a>                                                     sort_within_batch<span class="op">=</span><span class="va">True</span>,        <span class="co"># sort within each batch</span></span>
+<span id="cb71-25"><a href="#cb71-25" aria-hidden="true" tabindex="-1"></a>                                                     repeat<span class="op">=</span><span class="va">False</span>)                  <span class="co"># repeat the iterator for many epochs</span></span>
+<span id="cb71-26"><a href="#cb71-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-27"><a href="#cb71-27" aria-hidden="true" tabindex="-1"></a>test_spam_acc <span class="op">=</span> get_accuracy(Test5_model, test_spam_iter, <span class="bu">len</span>(text_field.vocab.itos), <span class="st">"cuda:0"</span>)</span>
+<span id="cb71-28"><a href="#cb71-28" aria-hidden="true" tabindex="-1"></a>test_nospam_acc <span class="op">=</span> get_accuracy(Test5_model, test_nospam_iter, <span class="bu">len</span>(text_field.vocab.itos), <span class="st">"cuda:0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="365">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(test_spam_acc.cpu().numpy(), test_nospam_acc.cpu().numpy(), test_acc.cpu().numpy())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.90604025 0.995855 0.986535</code></pre>
+</div>
+</div>
+<p>The false positive rate was the complement of the accuracy on the no-spam validation data subset, <span class="math inline">\(1-0.995855=0.0041450000&lt;1\%\)</span>, since these were the wrongly classified as spam examples (predicted as spam but aren’t). The false negative rate was the complement of the accuracy on the spam validation data subset, <span class="math inline">\(1-0.90604025=0.09395975 \approx 9\%\)</span>, since these were the wrongly classified as not spam examples (predicted as not spam but are).</p>
+</section>
+<section id="part-c-3-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-3-pt">Part (c) [3 pt]</h3>
+<p>What is your model’s prediction of the <strong>probability</strong> that the SMS message “machine learning is sooo cool!” is spam?</p>
+<p>Hint: To begin, use <code>text_field.vocab.stoi</code> to look up the index of each character in the vocabulary.</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-execution_count="400">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>msg <span class="op">=</span> <span class="st">"machine learning is sooo cool!"</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(<span class="bu">list</span>(msg))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="400">
+<pre><code>30</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="401">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>    sms <span class="op">=</span> torch.tensor([text_field.vocab.stoi[x] <span class="cf">for</span> x <span class="kw">in</span> msg]).unsqueeze(<span class="dv">0</span>)</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>    data_processed <span class="op">=</span> ident[sms].to(<span class="st">"cuda:0"</span>)</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> Test5_model(data_processed)</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> nn.functional.sigmoid(pred).reshape(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="bu">float</span>(pred.cpu().numpy()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.9999862909317017</code></pre>
+</div>
+</div>
+<p>The model predicts a greater than 99.99% probability that <code>msg</code> is not-spam (note that the <code>LabelField</code> maps the <code>spam</code> label to 0 because I left the vocabulary flag on). So the probability here is the conditional probability that the sms <code>msg</code> is not spam. <strong>Thus on the contrary, there is a <span class="math inline">\(1-0.9999862909317017 = 0.0000137091\%\)</span> probability that the message is spam as predicted by the model.</strong></p>
+</section>
+<section id="part-d-4-pt" class="level3">
+<h3 class="anchored" data-anchor-id="part-d-4-pt">Part (d) [4 pt]</h3>
+<p>Do you think detecting spam is an easy or difficult task?</p>
+<p>Since machine learning models are expensive to train and deploy, it is very important to compare our models against baseline models: a simple model that is easy to build and inexpensive to run that we can compare our recurrent neural network model against.</p>
+<p>Explain how you might build a simple baseline model. This baseline model can be a simple neural network (with very few weights), a hand-written algorithm, or any other strategy that is easy to build and test.</p>
+<p><strong>Do not actually build a baseline model. Instead, provide instructions on how to build it.</strong></p>
+<p>As we can see from the model results, using modern architectures, spam classification with a high accuracy and low false positive/negative rate is very achievable. This is probably because spam messages almost always have some tells about them since they are trying to get you to often do something monetary. Consider the two spam sms messages:</p>
+<p><code>Get the official ENGLAND poly ringtone or colour flag on yer mobile for tonights game! Text TONE or FLAG to 84199. Optout txt ENG STOP Box39822 W111WX £1.50</code></p>
+<p><code>8007 25p 4 Alfie Moon's Children in Need song on ur mob. Tell ur m8s. Txt TONE CHARITY to 8007 for nokias or POLY CHARITY for polys :zed 08701417012 profit 2 charity</code></p>
+<p>In both cases, words like “profit” and “£1.50” are fairly obvious clues that these are spam messages. In other words, there are semantic clues to spam messages. So on a more theoretical level, if we were to perform maximum likelihood estimation (e.g., use a <code>BCEWithLogitsLoss</code> for training), then it follows that our model weights should capture the semantical meanings. This would be in contrast to tasks like generative modelling, where the goal is to learn an entire distribution, an often intractable task.</p>
+<p>So as a baseline model, since there are easy “tells” for when a text is spam, we could even go with relatively (in comparison to RNNs) parsimonious ensemble tree models, e.g., XGBoost or Adaboost. This would be trained similarly to a neural network and the hyperparameter tuning process could be the same. The training objective would be to find the best possible splits across characters or words that best minimize some criterion like Gini impurity or entropy. In the case of a tree-based baseline model, we may opt for the word as features since that would help keep dimensionality low and result in needing a lower tree depth (less splits needed to get a good classification of sms). Ensemble models (e.g., those that implement majority voting via boosting and bootstrap aggregation) are usually quite powerful and actually win a lot of Kaggle competitions, also they have the benefit of being quick to train and infer on usually. Thus, we could have a fairly “strong” baseline model that is advantageous over a “weak” baseline model (some neural network with a single hidden layer), which could give us a false sense of ability for the RNN model.</p>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
