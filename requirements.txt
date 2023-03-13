@@ -1,0 +1,5 @@
+torch
+torchinfo
+wandb
+koila
+pytorch-lightning
