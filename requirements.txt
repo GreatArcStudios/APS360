@@ -1,0 +1,6 @@
+torch
+torchinfo
+wandb
+koila
+pytorch-lightning
+self-attention-cv
