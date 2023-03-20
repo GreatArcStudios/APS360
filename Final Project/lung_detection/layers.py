@@ -17,7 +17,7 @@ class Conv2dBlock(nn.Module):
         layers = [
             nn.Conv2d(in_channels, out_channels, kernel_size, 
                       padding=padding, dilation=dilation),
-            nn.BatchNorm2d(out_channels, momentum=0.05)
+            nn.BatchNorm2d(out_channels, momentum=0.025)
         ]
         if pool_size > 1:
             layers.append(nn.MaxPool2d(kernel_size=pool_size))
@@ -40,7 +40,7 @@ class TransposeConv2dBlock(nn.Module):
 
         layers = [
             nn.ConvTranspose2d(in_channels, out_channels, kernel_size),
-            nn.BatchNorm2d(out_channels, momentum=0.05)
+            nn.BatchNorm2d(out_channels, momentum=0.025)
         ]
         if dropout > 0.0:
             layers.append(nn.Dropout(p=dropout))
@@ -79,7 +79,7 @@ class LazyLinearBlock(nn.Module):
     
             layers = [
                 nn.LazyLinear(out_features),
-                nn.BatchNorm1d(out_features, momentum=0.05)
+                nn.BatchNorm1d(out_features, momentum=0.025)
             ]
             if dropout > 0.0:
                 layers.append(nn.Dropout(p=dropout))
@@ -98,7 +98,7 @@ class LinearBlock(nn.Module):
     
             layers = [
                 nn.Linear(in_features, out_features),
-                nn.BatchNorm1d(out_features, momentum=0.05)
+                nn.BatchNorm1d(out_features, momentum=0.025)
             ]
             if dropout > 0.0:
                 layers.append(nn.Dropout(p=dropout))

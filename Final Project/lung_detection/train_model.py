@@ -14,7 +14,7 @@ from lightning.pytorch.trainer import Trainer, seed_everything
 
 
 def train_main(batch_size=128, num_workers=4, max_epochs=50,
-               master_path="", **kwargs):
+               master_path="", use_inverse_weighting = False, **kwargs):
     # seed experiment
     seed_everything(seed=123)
 
@@ -23,12 +23,24 @@ def train_main(batch_size=128, num_workers=4, max_epochs=50,
                                          num_workers=num_workers,
                                          master_path=master_path)
     data_size = len(datamodule.train)
+    if use_inverse_weighting:
+        targets = [target for _, target in datamodule.train]
+        class_counts = np.bincount(targets)
+
+        # Calculate the class frequencies
+        class_freqs = class_counts / data_size
+
+        # Calculate the inverse frequency weights
+        weights = 1 / class_freqs
+    else:
+        weights = None
 
     # construct model
     lit_model = XRayLightning(seed=123,
                               batch_size=batch_size,
                               num_workers=num_workers,
                               data_size=data_size,
+                              alpha=weights,
                               **kwargs)
 
     # logging
@@ -40,12 +52,12 @@ def train_main(batch_size=128, num_workers=4, max_epochs=50,
 
     # callbacks
     early_stopping = EarlyStopping(
-        monitor="val_f1_score", mode="max", patience=30)
+        monitor="val_f1_score", mode="max", patience=250)
     checkpointing = ModelCheckpoint(
         monitor="val_f1_score", mode="max", save_top_k=5)
-    stochastic_weighting = StochasticWeightAveraging(swa_epoch_start=0.75,
-                                                     annealing_epochs=5,
-                                                     swa_lrs=3e-4)
+    stochastic_weighting = StochasticWeightAveraging(swa_epoch_start=0.65,
+                                                     annealing_epochs=80,
+                                                     swa_lrs=2e-4)
     model_sumary = ModelSummary(max_depth=4)
     learning_rate_montior = LearningRateMonitor(logging_interval="step")
     # training
@@ -106,39 +118,40 @@ def compute_class_accuracies(use_cuda=True, model=None, train_features=None):
 if __name__ == "__main__":
     torch.set_float32_matmul_precision("high")
     master_path = '../data_processing/embeddings/'
-    train = False
+    train = True
     if train:
         train_configs = {
             "master_path": master_path,
-            "batch_size": 64,
+            "batch_size": 8192,
             "num_workers": 0,
-            "max_epochs": 50,
+            "max_epochs": 1000,
             "lr": 0.00008,
-            "weight_decay": 1e-4,
-            "momentum": 0.99,
+            "weight_decay": 6e-1,
+            "momentum": 0.92,
+            "use_inverse_weighting": False,
         }
         trunk_configs = {
             "trunk_input_channels": 1024,
-            "trunk_mid_channels": 512,
-            "trunk_out_channels": 128,
+            "trunk_mid_channels": 64,
+            "trunk_out_channels": 32,
             "trunk_kernel_size": 7,
             "trunk_transpose_kernel": 12,
-            "trunk_dropout": 0.1,
+            "trunk_dropout": 0.015,
             "trunk_conv_layers": 2,
         }
         head_configs = {
-            "head_n_layer": 3,
-            "head_n_head": 8,
+            "head_n_layer": 1,
+            "head_n_head": 4,
             "head_feature_map_dim": 10,
-            "head_input_channels": 128,
-            "head_mid_channels": 256,
-            "head_output_channels": 64,
+            "head_input_channels": 32,
+            "head_mid_channels": 64,
+            "head_output_channels": 32,
             "head_kernel_size": 2,
             "head_max_pool_kernel_size": 2,
             "head_conv_layers": 1,
-            "head_classifier_input_features": 1024,
-            "head_hidden_size": 2048,
-            "head_dropout": 0.2,
+            "head_classifier_input_features": 512,
+            "head_hidden_size": 128,
+            "head_dropout": 0.015,
         }
         # combine configs into train_configs
         train_configs.update(trunk_configs)
@@ -147,25 +160,25 @@ if __name__ == "__main__":
     else:
         train_configs = {
             "master_path": master_path,
-            "batch_size": 64,
+            "batch_size": 128,
             "num_workers": 0,
             "max_epochs": 50,
             "lr": 0.00008,
-            "weight_decay": 1e-4,
+            "weight_decay": 2e-2,
             "momentum": 0.99,
         }
         trunk_configs = {
             "trunk_input_channels": 1024,
             "trunk_mid_channels": 512,
-            "trunk_out_channels": 128,
+            "trunk_out_channels": 64,
             "trunk_kernel_size": 7,
             "trunk_transpose_kernel": 12,
             "trunk_dropout": 0.1,
             "trunk_conv_layers": 2,
         }
         head_configs = {
-            "head_n_layer": 3,
-            "head_n_head": 8,
+            "head_n_layer": 2,
+            "head_n_head": 4,
             "head_feature_map_dim": 10,
             "head_input_channels": 128,
             "head_mid_channels": 256,
@@ -191,15 +204,15 @@ if __name__ == "__main__":
         model.freeze()
         model.eval()
         model.to("cuda:0")
-        
-        val_features = torchvision.datasets.DatasetFolder(
-            master_path + 'embeddingval2', loader=torch.load, extensions=('.tensor'))
-        train_accuracy_per_class = compute_class_accuracies(
-            use_cuda=True, model=model, train_features=val_features)
-        np.savetxt("baseline_results.csv", train_accuracy_per_class, delimiter=",")
 
         val_features = torchvision.datasets.DatasetFolder(
             master_path + 'embeddingval2', loader=torch.load, extensions=('.tensor'))
-        train_accuracy_per_class = compute_class_accuracies(
+        val_accuracy_per_class = compute_class_accuracies(
             use_cuda=True, model=model, train_features=val_features)
-        np.savetxt("baseline_results.csv", train_accuracy_per_class, delimiter=",")
+        np.savetxt("train_acc_results.csv", val_accuracy_per_class, delimiter=",")
+
+        train_features = torchvision.datasets.DatasetFolder(
+            master_path + 'embeddingtrain2', loader=torch.load, extensions=('.tensor'))
+        train_accuracy_per_class = compute_class_accuracies(
+            use_cuda=True, model=model, train_features=train_features)
+        np.savetxt("val_acc_results.csv", train_accuracy_per_class, delimiter=",")

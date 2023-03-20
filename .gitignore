@@ -79,3 +79,4 @@ koila
 */.ipynb_checkpoints
 */.idea
 */.vscode
+wandb_saves
