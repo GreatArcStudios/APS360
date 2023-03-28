@@ -1,0 +1,24 @@
+,probs,prediction,label,dataframe_index,img_path,is_correct
+0,"[[0.39257812 0.3515625  0.23046875 0.10693359 0.12792969 0.30078125
+  0.546875   0.36132812 0.46679688 0.47070312 0.58984375 0.38671875
+  0.10693359 0.23242188]
+ [0.69140625 0.51171875 0.671875   0.46875    0.7578125  0.76953125
+  0.7265625  0.4921875  0.5859375  0.74609375 0.66015625 0.7734375
+  0.21191406 0.80859375]
+ [0.7421875  0.84765625 0.83203125 0.890625   0.85546875 0.24316406
+  0.22851562 0.17773438 0.74609375 0.55859375 0.5390625  0.5234375
+  0.41992188 0.34765625]
+ [0.71875    0.5390625  0.72265625 0.54296875 0.81640625 0.79296875
+  0.7265625  0.47460938 0.6015625  0.765625   0.6640625  0.796875
+  0.24316406 0.83984375]
+ [0.734375   0.74609375 0.7890625  0.7890625  0.8359375  0.46679688
+  0.42578125 0.26171875 0.69140625 0.65625    0.59765625 0.65234375
+  0.33007812 0.57421875]]","[[0 0 0 0 0 0 1 0 0 0 1 0 0 0]
+ [1 1 1 0 1 1 1 0 1 1 1 1 0 1]
+ [1 1 1 1 1 0 0 0 1 1 1 1 0 0]
+ [1 1 1 1 1 1 1 0 1 1 1 1 0 1]
+ [1 1 1 1 1 0 0 0 1 1 1 1 0 1]]","[[0 0 0 0 0 1 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 0 0 0 0 0 0 0]]","tensor([17, 34, 10, 20,  6], device='cuda:0')","['C:\\Users\\ericz\\Documents\\Github\\APS360\\Final Project\\data_processing\\NewData/Emphysema/empysema2.jpeg', 'C:\\Users\\ericz\\Documents\\Github\\APS360\\Final Project\\data_processing\\NewData/Pleural Thickening/PT2.png', 'C:\\Users\\ericz\\Documents\\Github\\APS360\\Final Project\\data_processing\\NewData/Edema/edema2.jpg', 'C:\\Users\\ericz\\Documents\\Github\\APS360\\Final Project\\data_processing\\NewData/Fibrosis/fibr3.jpeg', 'C:\\Users\\ericz\\Documents\\Github\\APS360\\Final Project\\data_processing\\NewData/Consolidation/cons1.png']",[False False False False False]

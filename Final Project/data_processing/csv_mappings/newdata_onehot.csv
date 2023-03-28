@@ -1,0 +1,43 @@
+﻿Path,Atelectasis,Cardiomegaly,Consolidation,Edema,Effusion,Emphysema,Fibrosis,Hernia,Infiltration,Mass,Nodule,Pleural_Thickening,Pneumonia,Pneumothorax
+NewData/Actelactasis/Act1.jpg,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+NewData/Actelactasis/Act2.png,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+NewData/Actelactasis/Act3.jpg,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+NewData/Cardiomegaly/card1.jpg,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+NewData/Cardiomegaly/card2.jpg,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+NewData/Cardiomegaly/card3.jpg,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+NewData/Consolidation/cons1.png,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+NewData/Consolidation/cons2.jpg,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+NewData/Consolidation/cons3.jpg,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+NewData/Edema/edema1.jpg,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+NewData/Edema/edema2.jpg,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+NewData/Edema/edema3.png,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+NewData/Effusion/eff1.png,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+NewData/Effusion/eff2.jpg,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+NewData/Effusion/eff3.jpg,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+NewData/Emphysema/emphysema3.jpg,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+NewData/Emphysema/empysema1.jpeg,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+NewData/Emphysema/empysema2.jpeg,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+NewData/Fibrosis/Fibr1.png,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+NewData/Fibrosis/fibr2.png,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+NewData/Fibrosis/fibr3.jpeg,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+NewData/Hernia/hernia1.png,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+NewData/Hernia/hernia2.png,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+NewData/Hernia/hernia3.jpg,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+NewData/Infiltration/Infiltration1.jpg,0,0,0,0,0,0,0,0,1,0,0,0,0,0
+NewData/Infiltration/infiltration2.jpg,0,0,0,0,0,0,0,0,1,0,0,0,0,0
+NewData/Infiltration/infiltration3.jpg,0,0,0,0,0,0,0,0,1,0,0,0,0,0
+NewData/No Finding/norm1.jpeg,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+NewData/No Finding/norm2.jpg,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+NewData/No Finding/norm3.png,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+NewData/Nodule/nodule1.png,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+NewData/Nodule/nodule2.jpg,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+NewData/Nodule/nodule3.png,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+NewData/Pleural Thickening/PT1.png,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+NewData/Pleural Thickening/PT2.png,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+NewData/Pleural Thickening/PT3.png,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+NewData/Pneumonia/pneumonia1.jpg,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+NewData/Pneumonia/pneumonia2.jpg,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+NewData/Pneumonia/pneumonia3.jpg,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+NewData/Pneumothorax/thorax1.jpg,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+NewData/Pneumothorax/thorax2.jpg,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+NewData/Pneumothorax/thorax3.jpg,0,0,0,0,0,0,0,0,0,0,0,0,0,1
