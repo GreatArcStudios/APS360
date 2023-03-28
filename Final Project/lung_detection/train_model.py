@@ -55,9 +55,9 @@ def train_main(batch_size=128, num_workers=4, max_epochs=50,
         monitor="val_f1_score", mode="max", patience=250)
     checkpointing = ModelCheckpoint(
         monitor="val_f1_score", mode="max", save_top_k=5)
-    stochastic_weighting = StochasticWeightAveraging(swa_epoch_start=0.65,
-                                                     annealing_epochs=80,
-                                                     swa_lrs=2e-4)
+    stochastic_weighting = StochasticWeightAveraging(swa_epoch_start=0.75,
+                                                     annealing_epochs=8,
+                                                     swa_lrs=0.002)
     model_sumary = ModelSummary(max_depth=4)
     learning_rate_montior = LearningRateMonitor(logging_interval="step")
     # training
@@ -81,7 +81,7 @@ def train_main(batch_size=128, num_workers=4, max_epochs=50,
 
 
 def compute_class_accuracies(use_cuda=True, model=None, train_features=None):
-    nb_classes = 15
+    nb_classes = 14
 
     correct_pred = [0]*nb_classes
     total_pred = [0]*nb_classes
@@ -116,19 +116,22 @@ def compute_class_accuracies(use_cuda=True, model=None, train_features=None):
 
 
 if __name__ == "__main__":
-    torch.set_float32_matmul_precision("high")
-    master_path = '../data_processing/embeddings/'
+    torch.set_float32_matmul_precision("medium")
+    master_path = r'C:\Users\ericz\Documents\Github\APS360\Final Project\data_processing'
     train = True
     if train:
         train_configs = {
             "master_path": master_path,
-            "batch_size": 8192,
+            "batch_size": 128,
             "num_workers": 0,
-            "max_epochs": 1000,
-            "lr": 0.00008,
-            "weight_decay": 6e-1,
-            "momentum": 0.92,
+            "max_epochs": 110,
+            "lr": 0.0008,
+            "weight_decay": 8.5e-3,
+            "momentum": 0.90,
+            "gamma": 0.2, 
             "use_inverse_weighting": False,
+            "num_classes": 14,
+            "fine_tune": True,
         }
         trunk_configs = {
             "trunk_input_channels": 1024,
@@ -136,34 +139,35 @@ if __name__ == "__main__":
             "trunk_out_channels": 32,
             "trunk_kernel_size": 7,
             "trunk_transpose_kernel": 12,
-            "trunk_dropout": 0.015,
+            "trunk_dropout": 0.1,
             "trunk_conv_layers": 2,
         }
         head_configs = {
-            "head_n_layer": 1,
-            "head_n_head": 4,
+            "use_vit": True,
+            "head_n_layer": 6,
+            "head_n_head": 8,
             "head_feature_map_dim": 10,
             "head_input_channels": 32,
             "head_mid_channels": 64,
-            "head_output_channels": 32,
+            "head_output_channels": 64,
             "head_kernel_size": 2,
             "head_max_pool_kernel_size": 2,
             "head_conv_layers": 1,
-            "head_classifier_input_features": 512,
-            "head_hidden_size": 128,
-            "head_dropout": 0.015,
+            "head_classifier_input_features": 1024,
+            "head_hidden_size": 256,
+            "head_dropout": 0.1,
         }
         # combine configs into train_configs
         train_configs.update(trunk_configs)
         train_configs.update(head_configs)
-        model = train_main(**train_configs)
+        dense_model = train_main(**train_configs)
     else:
         train_configs = {
             "master_path": master_path,
             "batch_size": 128,
-            "num_workers": 0,
+            "num_workers": 2,
             "max_epochs": 50,
-            "lr": 0.00008,
+            "lr": 0.0008,
             "weight_decay": 2e-2,
             "momentum": 0.99,
         }
@@ -199,20 +203,20 @@ if __name__ == "__main__":
         artifact = run.use_artifact(
             'ericzhu/lung-xray/model-nmy83p9y:v4', type='model')
         artifact_dir = artifact.download()
-        model = eval_model.load_from_checkpoint(
+        dense_model = eval_model.load_from_checkpoint(
             artifact_dir + '/model.ckpt')
-        model.freeze()
-        model.eval()
-        model.to("cuda:0")
+        dense_model.freeze()
+        dense_model.eval()
+        dense_model.to("cuda:0")
 
         val_features = torchvision.datasets.DatasetFolder(
             master_path + 'embeddingval2', loader=torch.load, extensions=('.tensor'))
         val_accuracy_per_class = compute_class_accuracies(
-            use_cuda=True, model=model, train_features=val_features)
+            use_cuda=True, model=dense_model, train_features=val_features)
         np.savetxt("train_acc_results.csv", val_accuracy_per_class, delimiter=",")
 
         train_features = torchvision.datasets.DatasetFolder(
             master_path + 'embeddingtrain2', loader=torch.load, extensions=('.tensor'))
         train_accuracy_per_class = compute_class_accuracies(
-            use_cuda=True, model=model, train_features=train_features)
+            use_cuda=True, model=dense_model, train_features=train_features)
         np.savetxt("val_acc_results.csv", train_accuracy_per_class, delimiter=",")

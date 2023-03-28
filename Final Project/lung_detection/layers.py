@@ -93,7 +93,7 @@ class LazyLinearBlock(nn.Module):
 
 class LinearBlock(nn.Module):
     
-        def __init__(self, in_features, out_features, dropout=0.0, activations = nn.Mish):
+        def __init__(self, in_features, out_features, dropout=0.0, activations = nn.Mish, use_activation=True):
             super().__init__()
     
             layers = [
@@ -102,7 +102,8 @@ class LinearBlock(nn.Module):
             ]
             if dropout > 0.0:
                 layers.append(nn.Dropout(p=dropout))
-            layers.append(activations())
+            if use_activation:
+                layers.append(activations())
     
             self.block = nn.Sequential(*layers)
     
