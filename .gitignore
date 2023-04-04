@@ -80,3 +80,13 @@ koila
 */.idea
 */.vscode
 wandb_saves
+*.jpeg
+data
+embeddings
+densenet
+*.zip
+*.7z
+*.ckpt
+*.tar
+*.txt
+*.mdlckpt

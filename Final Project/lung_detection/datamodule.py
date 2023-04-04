@@ -6,71 +6,128 @@ import pandas as pd
 from torchvision.datasets import DatasetFolder
 from torch.utils import data
 from lightning import LightningDataModule
-import torchvision
 from torchvision import transforms
-from torch.utils.data import Dataset
-from imblearn.over_sampling import RandomOverSampler
+from torch.utils.data import Dataset, ConcatDataset
+from imblearn.over_sampling import RandomOverSampler 
+from imblearn.under_sampling import RandomUnderSampler
 from PIL import Image
-
-class OversampledSubset(Dataset):
-    def __init__(self, subset, transform=None):
-        # we want to map from the indices of the original subset
-        # to the indices of the over-sampled subset, which are really just pointers to objects in the original subset
-
-        # the original subset
-        self.subset = subset
-        # the transform to apply to the images
-        self.transform = transform
-        # the indices of the original subset
-        self.indices = subset.indices
-        # the targets of the original subset
-        # needs to be the targets given by self.indices
-        self.targets = [subset.dataset.targets[i] for i in self.indices]
-        
-        ros = RandomOverSampler(sampling_strategy='auto', random_state=26)
-        self.over_sampled_indices, self.over_sampled_targets = ros.fit_resample(np.array(self.indices).reshape(-1, 1), self.targets)
-
-    def __getitem__(self, index):
-        original_index = self.over_sampled_indices[index][0]
-        image, label = self.subset.dataset[original_index]
-        if self.transform:
-            image = self.transform(image)
-        return image, label
-
-    def __len__(self):
-        return len(self.over_sampled_indices)
+from concurrent.futures import ThreadPoolExecutor
 
 class ImageDataset(Dataset):
-    def __init__(self, dir, labels, transform=None):
-        self.dir = dir
-        self.labels = labels
+    def __init__(self, dir, transform=None, load_first=True):
+        self.nih_dir = dir + r"\data\nih_data"
+        self.pneumonia_dir = dir + r"\data\pneumonia"
+        self.pneumothorax_dir = dir + r"\data\pneumothorax"
+        self.df = self._inital_processing(dir)
+        self.labels = torch.FloatTensor(np.array(self.df.iloc[:, 4:]).astype(int)).float()
         self.transform = transform
+        self.load_first = load_first
+        if load_first:
+            self.images = self._load_all_images_parallel()
+        
+        print(self.nih_dir)
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, index):
-        img_path = os.path.join(self.dir, self.labels.iloc[index, 0])
-        image = Image.open(img_path).convert('RGB')
+        if self.load_first:
+            # obtain image from self.images
+            image = self.images[index]
+        else:
+            if self.df.iloc[index,0] == 1:
+                img_path = self.nih_dir + fr"\{self.df.iloc[index, 1]}"
+                image = Image.open(img_path).convert('RGB')
+
+            #For Pneumothorax Images
+            elif self.df.iloc[index,0] == 2:
+                img_path = self.pneumothorax_dir + fr"\{self.df.iloc[index, 1]}"
+                image = Image.open(img_path).convert('RGB')
+
+            #For Pneumonia Images
+            elif self.df.iloc[index,0] == 3:
+                img_path = self.pneumonia_dir + fr"\{self.df.iloc[index, 1]}"
+            image = Image.open(img_path).convert('RGB')
+            # open then close the image to avoid too many open files error
+            with Image.open(img_path) as image:
+                image.load()
+
         if self.transform is not None:
             image = self.transform(image)
-        label = torch.Tensor(np.array(self.labels.iloc[index, 3:]).astype(int)).float()
+
+        label = self.labels[index]
         return image, label
+    
+    def _inital_processing(self, dir):
+        dataset_df = pd.read_csv(os.path.join(dir, "csv_mappings", "Allimages_onehot.csv"))
+        # subset only nih data for now by column name
+        # where only num column == 1
+        # dataset_df = dataset_df[dataset_df['Num'] == 1]
+
+         # undersample the no findings examples
+        # they are the ones with all 0's as labels
+        # randomly select 5000 of them
+        no_findings = dataset_df[dataset_df.iloc[:,4:].sum(axis=1) == 0]
+        no_findings = no_findings.sample(n=12000, random_state=26)
+        dataset_df = dataset_df[dataset_df.iloc[:,4:].sum(axis=1) != 0]
+        dataset_df = pd.concat([dataset_df, no_findings])
+        return dataset_df
+
+    def _load_all_images(self):
+        images = []
+        for index in range(len(self.df)):
+            img_path = self.dir + self.df.iloc[index, 0]
+            # open then close the image to avoid too many open files error
+            with open(img_path, 'rb') as image:
+                image = Image.open(image)
+                image.load()
+                images.append(image.convert('RGB'))
+        return images
+    
+    def _load_image(self, start_index, end_index):
+        images = []
+        for index in range(start_index, end_index):
+            if self.df.iloc[index,0] == 1:
+                img_path = self.nih_dir + fr"\{self.df.iloc[index, 1]}"
+            elif self.df.iloc[index,0] == 2:
+                img_path = self.pneumothorax_dir + fr"\{self.df.iloc[index, 1]}"
+            elif self.df.iloc[index,0] == 3:
+                img_path = self.pneumonia_dir + fr"\{self.df.iloc[index, 1]}"
+
+            # open then close the image to avoid too many open files error
+            with Image.open(img_path) as image:
+                image.load()
+                images.append(image)
+        return images
+
+    def _load_all_images_parallel(self):
+        # load the images in parallel
+        # maintain the order of the images
+        # return a list of images
+        images = []
+        with ThreadPoolExecutor() as executor:
+            # partition job into chunks
+            chunk_size = 1000
+            num_chunks = len(self.labels) // chunk_size
+            for i in range(num_chunks):
+                start_index = i * chunk_size
+                end_index = start_index + chunk_size
+                images += executor.submit(self._load_image, start_index, end_index).result()
+            # process the remaining images
+            start_index = num_chunks * chunk_size
+            end_index = len(self.labels)
+            images += executor.submit(self._load_image, start_index, end_index).result()
+
+        return images
 
 class LungDetectionDataModule(LightningDataModule):
 
-    def __init__(self, batch_size=2, num_workers=0, master_path=""):
+    def __init__(self, batch_size=2, num_workers=0, master_path="", load_first = True):
         super().__init__()
         self.batch_size = batch_size
         self.num_workers = num_workers
 
         self.data_dir = master_path
-        # self.train = DatasetFolder(master_path + 'embeddingtrain' + self.reduced_path, 
-        #                            loader=torch.load, extensions=('.tensor'))
-        # self.valid = DatasetFolder(master_path + 'embeddingval' + self.reduced_path, 
-        #                            loader=torch.load, extensions=('.tensor'))
-        # self.test = DatasetFolder(master_path + 'embeddingval' + self.reduced_path, 
-        #                           loader=torch.load, extensions=('.tensor'))
 
         initial_tranforms = [
             transforms.Lambda(lambda x: x.convert('RGB')),
@@ -79,14 +136,14 @@ class LungDetectionDataModule(LightningDataModule):
             transforms.ToTensor()
         ]
         datatransform = transforms.Compose(initial_tranforms)
-        dataset = self._create_dataset(master_path, datatransform)
-        train_len, val_len, test_len = int(len(dataset)*0.8), int(len(dataset)*0.1), int(len(dataset)*0.1)
-        torch.manual_seed(26)
+        dataset = self._create_dataset(master_path, datatransform, load_first)
+        train_len, val_len = int(len(dataset)*0.8), int(len(dataset)*0.1)
+        test_len = len(dataset) - train_len - val_len
         train, valid, test = torch.utils.data.random_split(
             dataset,
             [train_len, val_len, test_len],
         )
-
+        print("train: ", len(train), "valid: ", len(valid), "test: ", len(test))
         self.train = train
         self.valid = valid
         self.test = test
@@ -101,51 +158,19 @@ class LungDetectionDataModule(LightningDataModule):
         self.valid.transform = non_train_transforms
         self.test.transform = non_train_transforms
 
-        # self.train = OversampledSubset(self.train)
-
         train_transforms_list = [
-            transforms.RandomRotation((-15, 15)),
             transforms.RandomHorizontalFlip(),
-            transforms.Normalize(mean=mean, std=std)
+            transforms.AugMix(severity=6, mixture_width=6),
+            transforms.TrivialAugmentWide(),
+            transforms.Normalize(mean=mean, std=std),
         ]
         train_transform = transforms.Compose(train_transforms_list)
 
         self.train.transform = train_transform
     
-    def _create_dataset(self, path, transforms = None): 
-        dataset_df = pd.read_csv(path + "/csv_mappings/nih_full.csv")
-        dataset_df = dataset_df.iloc[:,:16]
-        dataset_df[['Atelectasis', 'Cardiomegaly',
-       'Consolidation', 'Edema', 'Effusion', 'Emphysema', 'Fibrosis', 'Hernia',
-       'Infiltration', 'Mass', 'Nodule', 'Pleural_Thickening', 'Pneumonia',
-       'Pneumothorax']] = 0
-
-        labels = dataset_df["Finding Labels"]
-        for i in range(0,len(dataset_df)):
-            string = labels[i]
-            lst = string.split("|")
-            for j in range(0,len(lst)):
-                dataset_df.loc[i,lst[j]] = 1
-            if i%1000 == 0:
-                print(i)
-
-        dataset_df = dataset_df.iloc[:,:16]
-
-        with zipfile.ZipFile(f'{path}/data/nih_data.zip', 'r') as zip:
-            # Get the list of file names in the zip file
-            names = zip.namelist()
-            
-        # Print the list of file names
-        names = names[6:]
-        names = names[:-2]
-        dataset_df['Paths'] = names
-        dataset_df = dataset_df.reindex(columns=['Paths','Image Index', 'Finding Labels', 'Atelectasis', 'Cardiomegaly',
-            'Consolidation', 'Edema', 'Effusion', 'Emphysema', 'Fibrosis', 'Hernia',
-            'Infiltration', 'Mass', 'Nodule', 'Pleural_Thickening', 'Pneumonia',
-            'Pneumothorax'])
-        data_path = os.path.join(path, "data", "nih_data")
-        return ImageDataset(data_path, dataset_df, transforms)
-
+    def _create_dataset(self, path, transforms = None, load_first = True): 
+        return ImageDataset(path, transforms, load_first)
+    
     def train_dataloader(self):
         return data.DataLoader(
             self.train,

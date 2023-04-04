@@ -14,14 +14,17 @@ from lightning.pytorch.trainer import Trainer, seed_everything
 
 
 def train_main(batch_size=128, num_workers=4, max_epochs=50,
-               master_path="", use_inverse_weighting = False, **kwargs):
+               master_path="", use_inverse_weighting = False,
+               pos_weight_multi=1.0, load_first = False, 
+               fine_tune_epoch_start=20, **kwargs):
     # seed experiment
-    seed_everything(seed=123)
+    seed_everything(seed=26)
 
     # construct datamodule
     datamodule = LungDetectionDataModule(batch_size=batch_size,
                                          num_workers=num_workers,
-                                         master_path=master_path)
+                                         master_path=master_path, 
+                                         load_first=load_first)
     data_size = len(datamodule.train)
     if use_inverse_weighting:
         targets = [target for _, target in datamodule.train]
@@ -35,12 +38,22 @@ def train_main(batch_size=128, num_workers=4, max_epochs=50,
     else:
         weights = None
 
+    # ratio of negative examples to positive examples 
+    # for bce with logits loss 
+    # consider the labels from datamodule.train 
+    num_pos_labels_train = torch.sum(datamodule.train.dataset.labels, dim=0)
+    num_neg_labels_train = len(datamodule.train) - num_pos_labels_train
+    pos_weight_vec = num_neg_labels_train / num_pos_labels_train
+    pos_weight_vec = pos_weight_vec * pos_weight_multi
+
     # construct model
     lit_model = XRayLightning(seed=123,
                               batch_size=batch_size,
                               num_workers=num_workers,
                               data_size=data_size,
                               alpha=weights,
+                              pos_weight_vec=pos_weight_vec,
+                              fine_tune_epoch_start=fine_tune_epoch_start,
                               **kwargs)
 
     # logging
@@ -52,12 +65,12 @@ def train_main(batch_size=128, num_workers=4, max_epochs=50,
 
     # callbacks
     early_stopping = EarlyStopping(
-        monitor="val_f1_score", mode="max", patience=250)
+        monitor="val_f1_score", mode="max", patience=100)
     checkpointing = ModelCheckpoint(
         monitor="val_f1_score", mode="max", save_top_k=5)
     stochastic_weighting = StochasticWeightAveraging(swa_epoch_start=0.75,
                                                      annealing_epochs=8,
-                                                     swa_lrs=0.002)
+                                                     swa_lrs=0.0006)
     model_sumary = ModelSummary(max_depth=4)
     learning_rate_montior = LearningRateMonitor(logging_interval="step")
     # training
@@ -70,7 +83,6 @@ def train_main(batch_size=128, num_workers=4, max_epochs=50,
         enable_progress_bar=True,
         log_every_n_steps=1,
         max_epochs=max_epochs,
-        precision="bf16-mixed",
     )
 
     trainer.fit(lit_model, datamodule=datamodule)
@@ -114,48 +126,51 @@ def compute_class_accuracies(use_cuda=True, model=None, train_features=None):
     print("Total Accuracy: ", np.sum(correct_pred) / np.sum(total_pred))
     return accuracy_per_class
 
-
 if __name__ == "__main__":
     torch.set_float32_matmul_precision("medium")
-    master_path = r'C:\Users\ericz\Documents\Github\APS360\Final Project\data_processing'
+    master_path = r'F:\Users\ericz\Documents\Github\APS360\Final Project\data_processing'
     train = True
     if train:
         train_configs = {
             "master_path": master_path,
-            "batch_size": 128,
+            "batch_size": 64,
             "num_workers": 0,
-            "max_epochs": 110,
-            "lr": 0.0008,
-            "weight_decay": 8.5e-3,
-            "momentum": 0.90,
-            "gamma": 0.2, 
+            "max_epochs": 250,
+            "lr": 0.00005,
+            "weight_decay": 1.2e-4,
+            "momentum": 0.98,
+            "gamma": 2, 
             "use_inverse_weighting": False,
             "num_classes": 14,
             "fine_tune": True,
+            "fine_tune_epoch_start": 20,
+            "pos_weight_multi": 1.65,
+            "train_from_scratch": False,
+            "load_first": False,
         }
         trunk_configs = {
             "trunk_input_channels": 1024,
-            "trunk_mid_channels": 64,
-            "trunk_out_channels": 32,
+            "trunk_mid_channels": 128,
+            "trunk_out_channels": 64,
             "trunk_kernel_size": 7,
-            "trunk_transpose_kernel": 12,
-            "trunk_dropout": 0.1,
+            "trunk_transpose_kernel": 21,
+            "trunk_dropout": 0.15,
             "trunk_conv_layers": 2,
         }
         head_configs = {
             "use_vit": True,
-            "head_n_layer": 6,
-            "head_n_head": 8,
-            "head_feature_map_dim": 10,
-            "head_input_channels": 32,
-            "head_mid_channels": 64,
-            "head_output_channels": 64,
-            "head_kernel_size": 2,
+            "head_n_layer": 16,
+            "head_n_head": 4,
+            "head_feature_map_dim": 16,
+            "head_input_channels": 64,
+            "head_mid_channels": 32,
+            "head_output_channels": 16,
+            "head_kernel_size": 4,
             "head_max_pool_kernel_size": 2,
             "head_conv_layers": 1,
-            "head_classifier_input_features": 1024,
-            "head_hidden_size": 256,
-            "head_dropout": 0.1,
+            "head_classifier_input_features": 512,
+            "head_hidden_size": 384,
+            "head_dropout": 0.5,
         }
         # combine configs into train_configs
         train_configs.update(trunk_configs)
